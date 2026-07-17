@@ -1754,7 +1754,8 @@
         return;
       }
       if (earlyEnding || shouldCloseDay) {
-        showDailyReport(earlyEnding, currentDay, shouldCloseDay && !earlyEnding);
+        const day = earlyEnding ? dayFromTurn(Math.max(0, state.turn - 1)) : currentDay;
+        showDailyReport(earlyEnding, day, shouldCloseDay && !earlyEnding);
         return;
       }
       render();
