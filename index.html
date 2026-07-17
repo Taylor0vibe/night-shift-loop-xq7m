@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>误入007：牛马循环怪谈</title>
+  <title>你能撑到第几天？｜误入007：牛马循环怪谈</title>
   <style>
     :root {
       color-scheme: dark;
@@ -663,7 +663,7 @@
         <span class="logo">环</span>
         <div>
           <strong>误入007：牛马循环怪谈</strong>
-          <span>你能撑过第七天吗？</span>
+          <span>你能撑到第几天？</span>
         </div>
       </div>
       <div class="top-actions">
@@ -677,7 +677,7 @@
     <section class="hero" id="startView">
       <div class="cover">
         <div class="badge">招聘平台 · 已投递 127 天 · 互联网方向 · 今日收到 1 个 offer</div>
-        <h1>你能撑过<br>第七天吗？</h1>
+        <h1>你能撑到<br>第几天？</h1>
         <p class="lead">房租还有三天到期，银行卡余额只够撑到下周。你把期望薪资往下调了三次，终于收到一家互联网公司的 offer：某事项组、包三餐、事项稳定、今晚入职。</p>
         <div class="actions">
           <button class="btn primary" id="startBtn" type="button">查看并签署合同</button>
@@ -800,7 +800,7 @@
     <div class="modal-box">
       <h2 id="manualTitle">游戏说明</h2>
       <p>本作是虚构的都市灵异互动故事，与任何现实公司、组织或个人无关。</p>
-      <p>你将扮演一名走投无路的新员工，在一家公司度过一段不断失真的 007 入职期。阅读事件，做出选择，留意屏幕上偶尔出现的异常提示。</p>
+      <p>你将扮演一名走投无路的新员工，在一家公司度过一段不断失真的 15 天 007 入职期。阅读事件，做出选择，留意屏幕上偶尔出现的异常提示。</p>
       <p>“员工合同”既是入职文件，也是你能看到的唯一守则。签下名字后，工牌会生效。</p>
       <button class="btn primary" id="closeManualBtn" type="button">知道了</button>
     </div>
@@ -872,6 +872,7 @@
 
     let state = initialState();
     const PUBLIC_GAME_URL = "https://taylor0vibe.github.io/night-shift-loop-xq7m/";
+    const MAX_DAYS = 15;
 
     const feeds = [
       [["社会新闻", "某互联网公司连续三周关闭办公区窗帘，回应称为设备眩光测试。"], ["公司八卦", "B3 层最近又招新人了，offer 发得特别快。"], ["传闻", "这家公司的夜宵很好吃，吃完就不太想回家。"]],
@@ -1009,9 +1010,79 @@
         ]
       },
       {
+        id: "weekly",
+        icon: "报",
+        title: "第八天早会",
+        sub: "周报系统 · 自动汇总",
+        time: "星期一？ 09:00",
+        notice: "【周报】你的上周总结已由系统预填。",
+        text: "周报系统提前替你写好了总结。\n\n里面列着你没有做过的事项、没有参加过的会议，以及一段特别诚恳的自我批评。\n\n最后一行写着：我愿继续接受组织安排，直到事项完成。\n\n你盯着那句话看了很久。光标停在句号后面，像一只睁着的眼睛。",
+        choices: [
+          choice("提交这份周报", "交", { kpi: 9, hp: -6, san: -5 }, "系统提示：态度积极，建议继续观察。"),
+          choice("逐条删除虚假内容", "删", { aware: 13, kpi: -8, rel: -4 }, "每删一行，下一行就自动长出你的措辞。", { evidence: 1 }),
+          choice("把周报转发给同事确认", "转", { rel: 7, san: -4, kpi: -3 }, "同事只回：别把我放进去。")
+        ]
+      },
+      {
+        id: "canteen",
+        icon: "餐",
+        title: "第九天夜宵",
+        sub: "员工餐厅",
+        time: "23:59",
+        notice: "【福利】夜宵供应至凌晨 00:07。",
+        text: "餐厅灯火通明，却没有人说话。\n\n每个餐盘上都贴着工号。你的那份还冒着热气，汤面浮着一层暗红色油花。\n\n墙上滚动播放公司文化：吃饱，是为了更好地在线。\n\n你忽然想起入职合同上的那句：包三餐。",
+        choices: [
+          choice("吃完夜宵继续回工位", "吃", { hp: 6, san: -7, kpi: 5 }, "胃终于暖了一点，可你开始闻不到别的味道。"),
+          choice("只拿一瓶水", "水", { hp: 2, san: 4, kpi: -4 }, "瓶身标签写着你的名字，生产日期是明天。"),
+          choice("检查其他餐盘", "查", { aware: 15, san: -6, rel: -3 }, "有几个工号你在离职名单里见过。", { evidence: 1 })
+        ]
+      },
+      {
+        id: "leave",
+        icon: "假",
+        title: "第十天请假",
+        sub: "人事系统",
+        time: "星期？ 07:31",
+        notice: "【审批】请假理由需符合组织实际。",
+        text: "你终于打开请假页面。\n\n请假类型下拉框里没有病假，没有事假，只有“临时离线申请”。\n\n你填了身体不适。系统自动改成：个人成长意愿不足。\n\n审批流的最后一个节点，是你自己。",
+        choices: [
+          choice("撤回请假申请", "撤", { kpi: 6, hp: -8, san: -4 }, "系统提示：感谢理解。"),
+          choice("强行提交", "提", { hp: 8, kpi: -14, rel: -5 }, "审批很快驳回，理由是：你本人不同意。", { evidence: 1 }),
+          choice("修改成临时离线", "离", { aware: 12, san: -6, kpi: -5 }, "页面跳出红字：离线记录将用于替换本人。")
+        ]
+      },
+      {
+        id: "handover",
+        icon: "交",
+        title: "第十二天交接",
+        sub: "会议室 0B",
+        time: "00:07",
+        notice: "【沟通邀请】请准备工作交接。",
+        text: "你被叫去做工作交接。\n\n会议室里坐着一个新人。他穿着崭新的文化衫，胸口工牌空着，脸却像被屏幕光擦过。\n\n对方拿出你的待办清单，第一句话是：我可以从哪里接手你？\n\n你发现交接文档的标题不是工作交接，而是本人交接。",
+        choices: [
+          choice("把所有事项交给他", "交", { hp: 10, san: -9, aware: 8 }, "他接过文档，开始用你的语气说话。", { evidence: 1 }),
+          choice("拒绝交接", "拒", { kpi: -12, rel: -8, san: 5 }, "会议纪要显示：你拒绝配合组织安排。"),
+          choice("问他是谁招进来的", "问", { aware: 17, san: -7 }, "新人抬头：不是你发的 offer 吗？", { evidence: 1 })
+        ]
+      },
+      {
+        id: "audit",
+        icon: "审",
+        title: "第十四天复盘",
+        sub: "复盘文档 · 只读",
+        time: "星期日 23:31",
+        notice: "【复盘】请确认循环质量。",
+        text: "复盘文档里列出十五天的指标曲线。\n\n奇怪的是，第十五天已经填好了。你的 KPI、身体、精神、关系都被画成一条缓慢下降的线，最后停在 00:07。\n\n文档旁边有一个按钮：确认进入下一轮。\n\n你还没到第十五天。系统却像已经替你活过了。",
+        choices: [
+          choice("提前确认下一轮", "确", { kpi: 8, hp: -12, san: -10 }, "按钮按下去的一瞬间，你听见闸机重新开门。"),
+          choice("导出复盘文档", "导", { aware: 18, kpi: -8, san: -5 }, "文件名是：第十五天后遗留人员。", { evidence: 2 }),
+          choice("把指标曲线改成正常", "改", { san: 6, hp: 4, rel: -6 }, "曲线恢复了几秒，又慢慢弯回原来的形状。")
+        ]
+      },
+      {
         id: "final",
         icon: "签",
-        title: "无法同步的深夜",
+        title: "第十五天深夜",
         sub: "在线确认",
         time: "在线",
         notice: "【系统】是否继续保持在线？",
@@ -1184,7 +1255,7 @@
       { id: "firstStep", code: "A-002", title: "收到学徒", desc: "完成第一次选择，正式进入事项。", hint: "第一声收到不是回复，是闸门落下的声音。" },
       { id: "thirdTurn", code: "A-003", title: "试用期错觉", desc: "撑过前三个阶段。", hint: "试用期试的不是你能不能留下，是你还剩多少自己。" },
       { id: "sixthTurn", code: "A-004", title: "周三还没结束", desc: "进入第六个阶段后，日期开始松动。", hint: "日历不翻页的时候，人在替它翻面。" },
-      { id: "finalScene", code: "A-005", title: "在线确认", desc: "抵达最后一次系统询问。", hint: "问题只有一个，答案却早已被排进班表。" },
+      { id: "finalScene", code: "A-005", title: "第十五天在线确认", desc: "撑到第十五天，抵达最后一次系统询问。", hint: "问题只有一个，答案却早已被排进班表。" },
       { id: "evidence1", code: "B-001", title: "截图命名为个人原因", desc: "留下第一份异常证据。", hint: "证据被保存前，先学会了替公司说话。" },
       { id: "evidence3", code: "B-002", title: "封存材料", desc: "累计三份异常证据。", hint: "三份材料足以归档，也足以让归档人消失。" },
       { id: "evidence5", code: "B-003", title: "你不是幻觉", desc: "累计五份异常证据。", hint: "当证据太多，系统会开始怀疑证人。" },
@@ -1203,7 +1274,7 @@
       { id: "hp20", code: "E-002", title: "连续在线", desc: "身体状态跌到 20 或以下。", hint: "系统只记录在线，不记录谁在替你呼吸。" },
       { id: "san20", code: "E-003", title: "收到收到收到", desc: "精神状态跌到 20 或以下。", hint: "重复到第三遍时，它就不再需要你的声音。" },
       { id: "rel20", code: "E-004", title: "已读 17", desc: "同事关系跌到 20 或以下。", hint: "十七个已读排成一堵墙，墙后每个人都很忙。" },
-      { id: "balanced", code: "E-005", title: "还能装正常", desc: "第五阶段后四项状态都不低于 50。", hint: "最危险的稳定，是连自己都看不出裂缝。" },
+      { id: "balanced", code: "E-005", title: "还能装正常", desc: "第五天后四项状态都不低于 50。", hint: "最危险的稳定，是连自己都看不出裂缝。" },
       { id: "truth", code: "Z-001", title: "真相离职", desc: "达成结局：工牌裂开时，门外没有星期一。", hint: "逃出去的人会带走门，留下的人继续寻找门牌。" },
       { id: "insider", code: "Z-002", title: "亲信晋升", desc: "达成结局：你成了会说话的那盏灯。", hint: "灯不会离开走廊，它只负责照亮后来的人。" },
       { id: "layoff", code: "Z-003", title: "温和沟通", desc: "达成结局：被裁员。", hint: "温和是刀背，真正的刃藏在会议纪要里。" },
@@ -1305,11 +1376,16 @@
       state.aware = clamp(state.aware + (effect.aware || 0));
     }
 
+    function survivedDays() {
+      return Math.max(1, Math.min(MAX_DAYS, state.turn + 1));
+    }
+
     function nextScene() {
       for (const item of specialScenes) {
         if (item.condition()) return { ...item.scene, specialId: item.id, setFlag: item.setFlag };
       }
-      return baseScenes[Math.min(state.turn, baseScenes.length - 1)];
+      if (state.turn >= MAX_DAYS - 1) return baseScenes[baseScenes.length - 1];
+      return baseScenes[Math.min(state.turn, baseScenes.length - 2)];
     }
 
     function updateStats() {
@@ -1363,7 +1439,7 @@
       if (state.rel < 25) extra.push(["群聊状态", "你发出的每条消息都显示已读，没人再显示正在输入。"]);
       els.feed.innerHTML = group.concat(extra).map(([label, text]) => `<div class="feed-item"><b>${label}</b>${corruptText(text)}</div>`).join("");
       els.heatText.textContent = `热度 ${12 + state.turn * 11 + Math.max(0, state.aware - 30)}`;
-      els.leftDay.textContent = `阶段 ${Math.min(state.turn + 1, baseScenes.length)}`;
+      els.leftDay.textContent = `第 ${survivedDays()} / ${MAX_DAYS} 天`;
     }
 
     function updateAchievements() {
@@ -1454,11 +1530,19 @@
       if (!scene.specialId) state.turn += 1;
       checkAchievements({ choice: item, scene });
 
-      if (state.san <= 0) return showEnding("swallowed");
-      if (state.hp <= 0) return showEnding("overwork");
-      if (state.kpi < 18 && state.hp < 25) return showEnding("overwork");
-      if (state.aware >= 100 && state.rel < 18) return showEnding("admin");
+      const earlyEnding = resolveEarlyEnding();
+      if (earlyEnding) return showEnding(earlyEnding);
       render();
+    }
+
+    function resolveEarlyEnding() {
+      if (state.hp <= 10) return "overwork";
+      if (state.san <= 10) return "swallowed";
+      if (state.kpi <= 8) return "layoff";
+      if (state.rel <= 8 && state.kpi < 35) return "layoff";
+      if (state.aware >= 100 && state.rel < 18) return "admin";
+      if (state.kpi < 18 && state.hp < 25) return "overwork";
+      return null;
     }
 
     function addAchievement(id, silent = false) {
@@ -1473,7 +1557,7 @@
       if (context.choice) addAchievement("firstStep");
       if (state.turn >= 3) addAchievement("thirdTurn");
       if (state.turn >= 6) addAchievement("sixthTurn");
-      if (state.turn >= baseScenes.length - 1) addAchievement("finalScene");
+      if (state.turn >= MAX_DAYS - 1) addAchievement("finalScene");
       if (state.evidence >= 1) addAchievement("evidence1");
       if (state.evidence >= 3) addAchievement("evidence3");
       if (state.evidence >= 5) addAchievement("evidence5");
@@ -1524,6 +1608,7 @@
             <div class="share-stat"><b>精神状态</b><span>${state.san}</span></div>
             <div class="share-stat"><b>同事关系</b><span>${state.rel}</span></div>
             <div class="share-stat"><b>异常认知</b><span>${state.aware}</span></div>
+            <div class="share-stat"><b>坚持天数</b><span>${survivedDays()}/${MAX_DAYS}</span></div>
             <div class="share-stat"><b>成就档案</b><span>${state.achievements.length}/${achievementCatalog.length}</span></div>
           </div>
           <div class="share-qr">
@@ -1570,6 +1655,9 @@
       els.endingBadge.textContent = ending.badge;
       els.endingTitle.textContent = ending.title;
       els.endingText.innerHTML = "";
+      const survived = document.createElement("p");
+      survived.textContent = `本周目你撑到了第 ${survivedDays()} / ${MAX_DAYS} 天。`;
+      els.endingText.appendChild(survived);
       ending.text.split("\n\n").forEach((paragraph) => {
         const p = document.createElement("p");
         p.textContent = paragraph;
