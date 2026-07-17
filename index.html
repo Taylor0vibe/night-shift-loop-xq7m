@@ -507,21 +507,21 @@
     .modal-box h2 { margin: 0 0 12px; font-size: 25px; font-weight: 500; }
     .modal-box p { color: var(--muted); line-height: 1.75; }
     .daily-modal {
-      inset: auto 18px 18px auto;
+      inset: 0;
       display: none;
-      align-items: initial;
-      justify-content: initial;
-      width: min(520px, calc(100vw - 24px));
-      background: transparent;
-      padding: 0;
-      pointer-events: none;
-      backdrop-filter: none;
+      align-items: center;
+      justify-content: center;
+      width: auto;
+      background: rgba(0,0,0,.62);
+      padding: 20px;
+      pointer-events: auto;
+      backdrop-filter: blur(3px);
     }
-    .daily-modal.show { display: block; }
+    .daily-modal.show { display: flex; }
     .daily-modal .modal-box {
-      width: 100%;
+      width: min(560px, 100%);
       max-height: min(520px, calc(100vh - 36px));
-      padding: 14px;
+      padding: 18px;
       pointer-events: auto;
       background:
         linear-gradient(180deg, rgba(17,23,28,.96), rgba(5,7,9,.98)),
@@ -732,7 +732,6 @@
       .stage-head { grid-template-columns: 1fr; }
       .clock { grid-column: 1 / -1; text-align: left; }
       .daily-report-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .daily-modal { left: 12px; right: 12px; bottom: 12px; width: auto; }
       .story { min-height: 260px; font-size: 16px; }
     }
   </style>
@@ -1442,6 +1441,7 @@
     };
     els.toast = document.getElementById("toast");
     let pendingDailyEnding = null;
+    let pendingDailyAdvance = false;
 
     function choice(text, icon, effect, log, extra = {}) {
       return { text, icon, effect, log, ...extra };
@@ -1654,7 +1654,8 @@
       if (item.evidence) state.evidence += item.evidence;
       state.history.push(item.log);
       const advancedDay = !scene.specialId;
-      if (advancedDay) state.turn += 1;
+      const shouldCloseDay = advancedDay && actionInDay() === ACTIONS_PER_DAY;
+      if (advancedDay && !shouldCloseDay) state.turn += 1;
       checkAchievements({ choice: item, scene });
 
       const earlyEnding = resolveEarlyEnding();
@@ -1665,8 +1666,8 @@
         render();
         return;
       }
-      if (earlyEnding || state.turn % ACTIONS_PER_DAY === 0) {
-        showDailyReport(earlyEnding, currentDay);
+      if (earlyEnding || shouldCloseDay) {
+        showDailyReport(earlyEnding, currentDay, shouldCloseDay && !earlyEnding);
         return;
       }
       render();
@@ -1696,8 +1697,9 @@
       return "你被困在这里了";
     }
 
-    function showDailyReport(endingKey = null, completedDay = survivedDays()) {
+    function showDailyReport(endingKey = null, completedDay = survivedDays(), advanceAfterReport = false) {
       pendingDailyEnding = endingKey;
+      pendingDailyAdvance = advanceAfterReport;
       const day = Math.max(1, Math.min(MAX_DAYS, completedDay));
       const meta = dayMeta(day);
       els.dailyReport.innerHTML = `
@@ -1718,6 +1720,10 @@
 
     function continueAfterDailyReport() {
       els.dailyModal.classList.remove("show");
+      if (pendingDailyAdvance) {
+        state.turn += 1;
+        pendingDailyAdvance = false;
+      }
       if (pendingDailyEnding) {
         const endingKey = pendingDailyEnding;
         pendingDailyEnding = null;
@@ -1905,7 +1911,7 @@
     function hideAchievements() { els.achievementModal.classList.remove("show"); }
     function showShareCard() { renderShareCard(); els.shareModal.classList.add("show"); }
     function hideShareCard() { els.shareModal.classList.remove("show"); }
-    function hideDailyReport() { els.dailyModal.classList.remove("show"); pendingDailyEnding = null; }
+    function hideDailyReport() { els.dailyModal.classList.remove("show"); pendingDailyEnding = null; pendingDailyAdvance = false; }
     function showToast(message) {
       els.toast.textContent = message;
       els.toast.classList.add("show");
