@@ -961,6 +961,10 @@
     let hasSignedContract = false;
     const PUBLIC_GAME_URL = "https://taylor0vibe.github.io/night-shift-loop-xq7m/";
     const MAX_DAYS = 15;
+    const ACTIONS_PER_DAY = 2;
+    const MAX_ACTIONS = MAX_DAYS * ACTIONS_PER_DAY;
+    const START_DATE = new Date(2026, 6, 13);
+    const WEEKDAYS = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"];
 
     const feeds = [
       [["社会新闻", "某互联网公司连续三周关闭办公区窗帘，回应称为设备眩光测试。"], ["公司八卦", "B3 层最近又招新人了，offer 发得特别快。"], ["传闻", "这家公司的夜宵很好吃，吃完就不太想回家。"]],
@@ -1470,15 +1474,42 @@
       state.aware = clamp(state.aware + (effect.aware || 0));
     }
 
+    function dayFromTurn(turn = state.turn) {
+      return Math.max(1, Math.min(MAX_DAYS, Math.floor(turn / ACTIONS_PER_DAY) + 1));
+    }
+
+    function actionInDay(turn = state.turn) {
+      return turn % ACTIONS_PER_DAY + 1;
+    }
+
     function survivedDays() {
-      return Math.max(1, Math.min(MAX_DAYS, state.turn + 1));
+      if (state.currentEnding) return dayFromTurn(Math.max(0, state.turn - 1));
+      return dayFromTurn();
+    }
+
+    function dayMeta(day = survivedDays()) {
+      const date = new Date(START_DATE);
+      date.setDate(START_DATE.getDate() + day - 1);
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, "0");
+      const d = String(date.getDate()).padStart(2, "0");
+      return {
+        dateText: `${y}/${m}/${d}`,
+        weekday: WEEKDAYS[date.getDay()]
+      };
+    }
+
+    function clockForTurn(turn = state.turn) {
+      const meta = dayMeta(dayFromTurn(turn));
+      const time = actionInDay(turn) === 1 ? "09:46" : "23:47";
+      return `${meta.weekday} ${meta.dateText} ${time}`;
     }
 
     function nextScene() {
       for (const item of specialScenes) {
         if (item.condition()) return { ...item.scene, specialId: item.id, setFlag: item.setFlag };
       }
-      if (state.turn >= MAX_DAYS - 1) return baseScenes[baseScenes.length - 1];
+      if (state.turn >= MAX_ACTIONS - 1) return baseScenes[baseScenes.length - 1];
       return baseScenes[Math.min(state.turn, baseScenes.length - 2)];
     }
 
@@ -1507,8 +1538,8 @@
       document.body.classList.toggle("kpi-critical", state.kpi < 18);
       document.body.classList.toggle("rel-low", state.rel < 25);
       document.body.classList.toggle("shake", state.san < 30);
-      document.body.classList.toggle("week3", state.turn >= 6);
-      document.body.classList.toggle("deep-loop", state.turn >= 8 || state.hp < 24);
+      document.body.classList.toggle("week3", dayFromTurn() >= 7);
+      document.body.classList.toggle("deep-loop", dayFromTurn() >= 9 || state.hp < 24);
     }
 
     function impactMarkup(choiceData) {
@@ -1533,7 +1564,7 @@
       if (state.rel < 25) extra.push(["群聊状态", "你发出的每条消息都显示已读，没人再显示正在输入。"]);
       els.feed.innerHTML = group.concat(extra).map(([label, text]) => `<div class="feed-item"><b>${label}</b>${corruptText(text)}</div>`).join("");
       els.heatText.textContent = `热度 ${12 + state.turn * 11 + Math.max(0, state.aware - 30)}`;
-      els.leftDay.textContent = `第 ${survivedDays()} / ${MAX_DAYS} 天`;
+      els.leftDay.textContent = `第 ${dayFromTurn()} / ${MAX_DAYS} 天 · 第 ${actionInDay()} 次行动`;
     }
 
     function updateAchievements() {
@@ -1594,7 +1625,7 @@
       updateStatus();
       els.sceneTitle.textContent = corruptText(scene.title);
       els.sceneSub.textContent = corruptText(scene.sub);
-      els.clockText.textContent = corruptText(scene.time);
+      els.clockText.textContent = corruptText(clockForTurn());
       els.notice.textContent = corruptText(noticeText(scene));
       els.story.textContent = corruptText(scene.text);
       els.logline.textContent = corruptText(state.history[state.history.length - 1] || "你还没来得及后悔。");
@@ -1610,11 +1641,11 @@
     }
 
     function selectChoice(item, scene) {
-      const completedDay = survivedDays();
+      const currentDay = dayFromTurn();
       if (item.ending) {
         state.history.push(`你选择了：${item.text}`);
         checkAchievements({ choice: item, scene });
-        showDailyReport(resolveEnding(item.ending), completedDay);
+        showDailyReport(resolveEnding(item.ending), currentDay);
         return;
       }
       applyEffect(item.effect);
@@ -1634,7 +1665,11 @@
         render();
         return;
       }
-      showDailyReport(earlyEnding, completedDay);
+      if (earlyEnding || state.turn % ACTIONS_PER_DAY === 0) {
+        showDailyReport(earlyEnding, currentDay);
+        return;
+      }
+      render();
     }
 
     function reportMood(value, low, good) {
@@ -1664,8 +1699,10 @@
     function showDailyReport(endingKey = null, completedDay = survivedDays()) {
       pendingDailyEnding = endingKey;
       const day = Math.max(1, Math.min(MAX_DAYS, completedDay));
+      const meta = dayMeta(day);
       els.dailyReport.innerHTML = `
         <h3>第 ${day} / ${MAX_DAYS} 天日报</h3>
+        <p class="tiny">${meta.weekday} · ${meta.dateText} · 两次行动已归档</p>
         <p>${corruptText(dailyReportTone())}</p>
         <div class="daily-report-grid">
           <div class="daily-report-stat kpi"><b>绩效 KPI · ${reportMood(state.kpi, 30, 78)}</b><span>${state.kpi}</span></div>
@@ -1712,7 +1749,7 @@
       if (context.choice) addAchievement("firstStep");
       if (state.turn >= 3) addAchievement("thirdTurn");
       if (state.turn >= 6) addAchievement("sixthTurn");
-      if (state.turn >= MAX_DAYS - 1) addAchievement("finalScene");
+      if (state.turn >= MAX_ACTIONS - 1) addAchievement("finalScene");
       if (state.evidence >= 1) addAchievement("evidence1");
       if (state.evidence >= 3) addAchievement("evidence3");
       if (state.evidence >= 5) addAchievement("evidence5");
@@ -1722,7 +1759,7 @@
       if (state.hp <= 20) addAchievement("hp20");
       if (state.san <= 20) addAchievement("san20");
       if (state.rel <= 20) addAchievement("rel20");
-      if (state.turn >= 5 && state.kpi >= 50 && state.hp >= 50 && state.san >= 50 && state.rel >= 50) addAchievement("balanced");
+      if (dayFromTurn() >= 5 && state.kpi >= 50 && state.hp >= 50 && state.san >= 50 && state.rel >= 50) addAchievement("balanced");
       if (state.flags.duplicate) addAchievement("duplicate");
       if (state.flags.bloodCoffee) addAchievement("bloodCoffee");
       if (state.flags.core) addAchievement("core");
