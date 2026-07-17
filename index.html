@@ -1499,9 +1499,60 @@
       };
     }
 
+    function timeDriftLevel(day = dayFromTurn()) {
+      let level = 0;
+      if (day >= 7) level = 1;
+      if (day >= 11) level = 2;
+      if (state.aware >= 56 || state.san < 35) level = Math.max(level, 1);
+      if (state.aware >= 78 || state.san < 22) level = Math.max(level, 2);
+      return level;
+    }
+
+    function displayDayLabel(day = dayFromTurn()) {
+      const level = timeDriftLevel(day);
+      if (level === 0) return `第 ${day} / ${MAX_DAYS} 天`;
+      if (level === 1) {
+        const variants = [`第 ${day}？/ ${MAX_DAYS} 天`, `第 ${day} / 15? 天`, `第 ${day} / 周一 天`];
+        return variants[(day + state.turn) % variants.length];
+      }
+      const variants = [`第 ${day} / ?? 天`, `第 ?${day} / 15 天`, `第 █ / ${MAX_DAYS} 天`, `第 ${day} / 周一 天`];
+      return variants[(day + state.turn + state.aware) % variants.length];
+    }
+
+    function displayActionLabel(turn = state.turn) {
+      const day = dayFromTurn(turn);
+      const action = actionInDay(turn);
+      const level = timeDriftLevel(day);
+      if (level === 0) return `第 ${action} 次行动`;
+      if (level === 1) return `第 ${action} 次行动？`;
+      return action === 1 ? "第 ? 次行动" : "第 █ 次行动";
+    }
+
+    function displayTemporalMeta(day = dayFromTurn()) {
+      const meta = dayMeta(day);
+      const level = timeDriftLevel(day);
+      if (level === 0) return meta;
+      if (level === 1) {
+        const dayText = String(day).padStart(2, "0");
+        const weekday = [meta.weekday, `${meta.weekday}？`, "星期？", "周一？"][day % 4];
+        const dateText = [`2026/07/${dayText}?`, `2026/07/??`, `${meta.dateText}？`, "2026/07/周一"][state.turn % 4];
+        return { weekday, dateText };
+      }
+      const weekday = ["星期█", "星期？", "周一周一", "在线日"][state.turn % 4];
+      const dateText = ["20██/0?/??", "2026/07/??", "????/??/??", "2026/周一/07"][day % 4];
+      return { weekday, dateText };
+    }
+
     function clockForTurn(turn = state.turn) {
-      const meta = dayMeta(dayFromTurn(turn));
-      const time = actionInDay(turn) === 1 ? "09:46" : "23:47";
+      const day = dayFromTurn(turn);
+      const meta = displayTemporalMeta(day);
+      const level = timeDriftLevel(day);
+      const cleanTime = actionInDay(turn) === 1 ? "09:46" : "23:47";
+      const time = level === 0
+        ? cleanTime
+        : level === 1
+          ? (actionInDay(turn) === 1 ? "09:??" : "23:4?")
+          : (actionInDay(turn) === 1 ? "??:46" : "00:07");
       return `${meta.weekday} ${meta.dateText} ${time}`;
     }
 
@@ -1564,7 +1615,7 @@
       if (state.rel < 25) extra.push(["群聊状态", "你发出的每条消息都显示已读，没人再显示正在输入。"]);
       els.feed.innerHTML = group.concat(extra).map(([label, text]) => `<div class="feed-item"><b>${label}</b>${corruptText(text)}</div>`).join("");
       els.heatText.textContent = `热度 ${12 + state.turn * 11 + Math.max(0, state.aware - 30)}`;
-      els.leftDay.textContent = `第 ${dayFromTurn()} / ${MAX_DAYS} 天 · 第 ${actionInDay()} 次行动`;
+      els.leftDay.textContent = `${displayDayLabel()} · ${displayActionLabel()}`;
     }
 
     function updateAchievements() {
@@ -1697,14 +1748,21 @@
       return "你被困在这里了";
     }
 
+    function archiveLine(day) {
+      const level = timeDriftLevel(day);
+      if (level === 0) return "两次行动已归档";
+      if (level === 1) return "两次行动已归档？字段正在重算";
+      return "两次行█已归档 / 日期字段拒绝同步";
+    }
+
     function showDailyReport(endingKey = null, completedDay = survivedDays(), advanceAfterReport = false) {
       pendingDailyEnding = endingKey;
       pendingDailyAdvance = advanceAfterReport;
       const day = Math.max(1, Math.min(MAX_DAYS, completedDay));
-      const meta = dayMeta(day);
+      const meta = displayTemporalMeta(day);
       els.dailyReport.innerHTML = `
-        <h3>第 ${day} / ${MAX_DAYS} 天日报</h3>
-        <p class="tiny">${meta.weekday} · ${meta.dateText} · 两次行动已归档</p>
+        <h3>${displayDayLabel(day)}日报</h3>
+        <p class="tiny">${meta.weekday} · ${meta.dateText} · ${archiveLine(day)}</p>
         <p>${corruptText(dailyReportTone())}</p>
         <div class="daily-report-grid">
           <div class="daily-report-stat kpi"><b>绩效 KPI · ${reportMood(state.kpi, 30, 78)}</b><span>${state.kpi}</span></div>
