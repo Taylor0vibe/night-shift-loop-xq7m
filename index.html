@@ -912,7 +912,7 @@
     <div class="modal-box">
       <h2 id="manualTitle">游戏说明</h2>
       <p>本作是虚构的都市灵异互动故事，与任何现实公司、组织或个人无关。</p>
-      <p>你将扮演一名走投无路的新员工，在一家公司度过一段不断失真的 15 天 007 入职期。阅读事件，做出选择，留意屏幕上偶尔出现的异常提示。</p>
+      <p>你将扮演一名走投无路的新员工，在一家公司度过一段不断失真的 14 天 007 入职期。阅读事件，做出选择，留意屏幕上偶尔出现的异常提示。</p>
       <p>“员工合同”既是入职文件，也是你能看到的唯一守则。签下名字后，工牌会生效。</p>
       <button class="btn primary" id="closeManualBtn" type="button">知道了</button>
     </div>
@@ -995,7 +995,7 @@
     let state = initialState();
     let hasSignedContract = false;
     const PUBLIC_GAME_URL = "https://taylor0vibe.github.io/night-shift-loop-xq7m/";
-    const MAX_DAYS = 15;
+    const MAX_DAYS = 14;
     const ACTIONS_PER_DAY = 2;
     const MAX_ACTIONS = MAX_DAYS * ACTIONS_PER_DAY;
     const START_DATE = new Date(2026, 6, 13);
@@ -1796,7 +1796,7 @@
       pendingDailyEnding = endingKey;
       pendingDailyAdvance = advanceAfterReport;
       const day = Math.max(1, Math.min(MAX_DAYS, completedDay));
-      const meta = displayTemporalMeta(day);
+      const meta = dayMeta(day);
       els.dailyReport.innerHTML = `
         <h3>${displayDayLabel(day)}日报</h3>
         <p class="tiny">${meta.weekday} · ${meta.dateText} · ${archiveLine(day)}</p>
