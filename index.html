@@ -1,0 +1,1643 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>误入007：牛马循环怪谈</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #050607;
+      --panel: #101317;
+      --panel2: #151a20;
+      --panel3: #1d232b;
+      --paper: #b8c7c8;
+      --paper2: #9fb5bb;
+      --ink: #071012;
+      --text: #edf2ee;
+      --muted: #93a0a0;
+      --line: #2e3940;
+      --red: #c23f36;
+      --red2: #751a18;
+      --green: #77b9b2;
+      --blue: #78a8bb;
+      --amber: #6fa2a8;
+      --violet: #9d86b6;
+      --shadow: 0 28px 90px rgba(0,0,0,.58);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.055), transparent 9rem),
+        linear-gradient(115deg, transparent 0 18%, rgba(120,168,187,.08) 18% 18.4%, transparent 18.4% 66%, rgba(194,63,54,.12) 66% 66.3%, transparent 66.3%),
+        radial-gradient(circle at 16% 4%, rgba(120,168,187,.13), transparent 30rem),
+        radial-gradient(circle at 86% 12%, rgba(194,63,54,.18), transparent 32rem),
+        repeating-linear-gradient(180deg, rgba(255,255,255,.028) 0 1px, transparent 1px 7px),
+        var(--bg);
+      overflow-x: hidden;
+    }
+
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0;
+      z-index: 40;
+      transition: opacity .25s ease;
+    }
+
+    body::before {
+      background:
+        radial-gradient(circle at 50% 48%, transparent 0 30%, rgba(255,255,255,.16) 31%, transparent 38%),
+        radial-gradient(circle at 50% 50%, transparent 0 44%, rgba(0,0,0,.68) 74%);
+      mix-blend-mode: screen;
+      filter: blur(1px);
+    }
+
+    body::after {
+      background:
+        linear-gradient(180deg, rgba(105,0,0,.56), transparent 20%),
+        radial-gradient(circle at 12% -6%, rgba(190,0,0,.46), transparent 11rem),
+        repeating-linear-gradient(90deg, transparent 0 48px, rgba(120,0,0,.18) 48px 51px, transparent 51px 98px);
+    }
+
+    body.san-low::before { opacity: .42; }
+    body.san-critical::before { opacity: .72; }
+    body.kpi-low::after { opacity: .28; }
+    body.kpi-critical::after { opacity: .52; }
+    body.hp-low .stage-card { box-shadow: inset 0 0 0 1px rgba(194,63,54,.42), 0 28px 90px rgba(0,0,0,.58); }
+    body.hp-critical .stage-card { filter: saturate(.72) contrast(1.12); }
+    body.rel-low .game { box-shadow: inset 0 0 0 1px rgba(183,66,52,.45), var(--shadow); }
+    body.shake .stage-card { animation: shake .12s linear 8; }
+    body.week3 .game::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 3;
+      opacity: .66;
+      background:
+        radial-gradient(circle at 12% 24%, rgba(194,63,54,.55) 0 1px, transparent 2px),
+        radial-gradient(circle at 74% 18%, rgba(0,0,0,.7) 0 1px, transparent 2px),
+        radial-gradient(circle at 42% 78%, rgba(194,63,54,.32) 0 1px, transparent 2px),
+        radial-gradient(circle at 86% 66%, rgba(0,0,0,.65) 0 1px, transparent 2px);
+      background-size: 97px 131px, 151px 109px, 121px 137px, 173px 149px;
+      animation: drift 9s linear infinite;
+    }
+    body.week3 .game::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 4;
+      opacity: .68;
+      background:
+        radial-gradient(circle at 18% 18%, rgba(118,0,0,.28) 0 3rem, transparent 11rem),
+        radial-gradient(circle at 78% 72%, rgba(94,0,0,.34) 0 4rem, transparent 14rem),
+        radial-gradient(circle at 50% 52%, rgba(130,0,0,.18) 0 6rem, transparent 20rem),
+        linear-gradient(90deg, transparent 0 34%, rgba(118,0,0,.16) 38%, transparent 43%),
+        repeating-linear-gradient(180deg, transparent 0 14px, rgba(174,0,0,.1) 14px 15px, transparent 15px 31px);
+      filter: blur(.35px);
+      mix-blend-mode: screen;
+      animation: redBloom 7.2s ease-in-out infinite, pageFlicker 4.8s steps(2, end) infinite;
+    }
+    body.week3 .game > * { position: relative; z-index: 5; }
+    body.week3 .stage-visual img { animation: screenPulse 3.8s steps(2, end) infinite; }
+    body.week3 .stage-visual::before { box-shadow: inset 0 0 90px rgba(194,63,54,.32); }
+    body.week3 .stage-visual::after {
+      color: rgba(164,255,187,.86);
+      text-shadow: 0 0 8px rgba(72,255,129,.9), 0 0 22px rgba(72,255,129,.42);
+      animation: exitBlink 1.4s steps(2, end) infinite;
+    }
+    body.week3 .panel::before {
+      content: "同步失败 0731 / ███ 已读 / 周期偏移 / 不要回头";
+      position: absolute;
+      left: 14px;
+      right: 14px;
+      bottom: 8px;
+      height: 42px;
+      pointer-events: none;
+      opacity: .26;
+      background:
+        linear-gradient(90deg, rgba(103,177,188,.08), transparent),
+        repeating-linear-gradient(90deg, rgba(103,177,188,.12) 0 1px, transparent 1px 8px);
+      color: rgba(150,213,215,.52);
+      font: 10px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      letter-spacing: .08em;
+      display: flex;
+      align-items: center;
+      padding: 0 8px;
+      border: 1px solid rgba(103,177,188,.12);
+      overflow: hidden;
+    }
+    body.week3 .feed-item::after {
+      content: "×";
+      position: absolute;
+      right: 4px;
+      top: 2px;
+      color: rgba(194,63,54,.78);
+      font-size: 28px;
+      line-height: 1;
+      font-family: ui-serif, Georgia, serif;
+      transform: rotate(-11deg);
+      text-shadow: 0 0 12px rgba(194,63,54,.35);
+    }
+    body.week3 .status-block:nth-child(2)::after {
+      content: "◎";
+      float: right;
+      margin-top: -28px;
+      color: rgba(194,63,54,.56);
+      font-size: 22px;
+      text-decoration: line-through;
+      transform: rotate(8deg);
+    }
+    body.deep-loop .stage-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 2;
+      opacity: .34;
+      background:
+        radial-gradient(circle at 68% 18%, rgba(169,232,235,.24), transparent 11rem),
+        linear-gradient(110deg, transparent 0 34%, rgba(194,63,54,.12) 42%, transparent 48%);
+      mix-blend-mode: screen;
+      animation: glare 4.6s ease-in-out infinite;
+    }
+    body.deep-loop .notice::after {
+      content: "  /  你正在被重新排版  /  ████";
+      color: rgba(194,63,54,.72);
+      animation: textBlink 1.8s steps(2, end) infinite;
+    }
+    body.deep-loop .stage-card { box-shadow: inset 0 0 0 1px rgba(99,178,186,.18), inset 0 -90px 160px rgba(77,0,0,.18), 0 28px 90px rgba(0,0,0,.58); }
+
+    button { font: inherit; color: inherit; }
+    .app { width: min(1220px, calc(100% - 26px)); height: 100vh; margin: 0 auto; padding: 14px 0; display: flex; flex-direction: column; overflow: hidden; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; gap: 14px; margin-bottom: 10px; flex: 0 0 auto; }
+    .brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .logo { width: 36px; height: 36px; display: grid; place-items: center; border: 1px solid rgba(103,177,188,.42); background: linear-gradient(180deg, #183139, #071215); color: #b7f3ee; font-weight: 700; box-shadow: 0 0 26px rgba(103,177,188,.18); border-radius: 6px; }
+    .brand strong { display: block; font-size: 18px; font-weight: 500; }
+    .brand span, .tiny { color: var(--muted); font-size: 13px; }
+    .top-actions, .actions { display: flex; gap: 9px; flex-wrap: wrap; justify-content: flex-end; }
+    .btn, .choice {
+      min-height: 40px;
+      border: 1px solid rgba(120,168,187,.26);
+      background: linear-gradient(180deg, rgba(29,35,43,.95), rgba(13,16,20,.95));
+      padding: 9px 12px;
+      cursor: pointer;
+      border-radius: 7px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.035);
+    }
+    .btn:hover, .choice:hover { border-color: rgba(142,220,226,.5); background: linear-gradient(180deg, rgba(38,46,56,.98), rgba(17,21,26,.98)); }
+    .btn.primary { background: linear-gradient(180deg, #b8e7e8, #4f828a); color: #041012; border-color: rgba(184,231,232,.62); box-shadow: 0 0 0 1px rgba(0,0,0,.24), 0 10px 28px rgba(78,176,188,.16); }
+    .btn[disabled] { opacity: .5; cursor: not-allowed; }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(300px, .85fr);
+      gap: 14px;
+      min-height: 0;
+      flex: 1 1 auto;
+    }
+    .card, .cover, .preview, .game, .modal-box, .ending {
+      border: 1px solid rgba(120,168,187,.22);
+      border-radius: 8px;
+      background:
+        linear-gradient(180deg, rgba(19,24,30,.96), rgba(6,8,10,.985)),
+        rgba(8,10,12,.95);
+      box-shadow: var(--shadow);
+    }
+    .cover {
+      min-height: 540px;
+      padding: 34px;
+      position: relative;
+      overflow: hidden;
+      background:
+        linear-gradient(90deg, rgba(5,6,7,.97) 0 35%, rgba(5,6,7,.78) 58%, rgba(5,6,7,.28)),
+        linear-gradient(180deg, rgba(103,177,188,.08), transparent 38%),
+        url("contract-cover.png") center / cover no-repeat,
+        rgba(8,10,12,.95);
+    }
+    .cover::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, rgba(6,8,10,.88) 0 42%, rgba(6,8,10,.42) 58%, rgba(6,8,10,.18)),
+        linear-gradient(180deg, rgba(103,177,188,.08), transparent 38%),
+        radial-gradient(circle at 76% 22%, rgba(69,255,151,.12), transparent 18rem),
+        repeating-linear-gradient(180deg, transparent 0 5px, rgba(255,255,255,.022) 5px 6px);
+      pointer-events: none;
+      z-index: 1;
+    }
+    .cover::after {
+      content: "";
+      position: absolute;
+      right: 34px;
+      top: 34px;
+      bottom: 34px;
+      width: 1px;
+      background: linear-gradient(180deg, transparent, rgba(194,63,54,.75), transparent);
+      box-shadow: 0 0 22px rgba(194,63,54,.45);
+      opacity: .72;
+    }
+    .badge { display: inline-flex; gap: 8px; align-items: center; border: 1px solid rgba(103,177,188,.28); background: rgba(103,177,188,.055); color: var(--paper2); padding: 7px 10px; font-size: 13px; margin-bottom: 22px; position: relative; z-index: 1; border-radius: 999px; }
+    h1 { margin: 0 0 20px; max-width: 560px; font-size: clamp(44px, 7vw, 84px); line-height: .96; font-weight: 500; letter-spacing: 0; position: relative; z-index: 2; }
+    .lead { max-width: 560px; color: var(--muted); font-size: 18px; line-height: 1.85; margin: 0 0 24px; position: relative; z-index: 2; text-shadow: 0 1px 16px rgba(0,0,0,.38); }
+    .cover .actions, .cover .tiny, .cover .badge { position: relative; z-index: 2; }
+    .cover-fragments {
+      position: relative;
+      z-index: 2;
+      width: min(560px, 100%);
+      margin: 18px 0 0;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .fragment {
+      min-height: 54px;
+      border: 1px solid rgba(120,168,187,.18);
+      border-left: 3px solid rgba(194,63,54,.48);
+      background: rgba(3,8,10,.5);
+      color: rgba(184,199,200,.76);
+      padding: 8px 10px;
+      font: 11px/1.55 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      overflow: hidden;
+      border-radius: 5px;
+      text-shadow: 0 0 12px rgba(103,177,188,.18);
+    }
+    .office-illus {
+      position: absolute;
+      inset: 0 0 0 auto;
+      width: min(760px, 64%);
+      height: 100%;
+      opacity: .96;
+      z-index: 0;
+      border-left: 1px solid rgba(120,168,187,.2);
+      border-radius: 0;
+      overflow: hidden;
+      box-shadow: none;
+    }
+    .office-illus img { width: 100%; height: 100%; object-fit: cover; object-position: 58% center; display: block; filter: saturate(.72) contrast(1.16) brightness(.64); }
+    .office-illus::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, rgba(5,6,7,.72), rgba(5,6,7,.34) 38%, rgba(5,6,7,.15)),
+        radial-gradient(circle at 72% 14%, rgba(69,255,151,.22), transparent 12rem),
+        linear-gradient(180deg, transparent, rgba(5,6,7,.52));
+      pointer-events: none;
+    }
+    .office-illus::after {
+      content: "LABOR CONTRACT / 00:07 / SIGNED?";
+      position: absolute;
+      right: 12px;
+      bottom: 10px;
+      color: rgba(237,242,238,.72);
+      font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      letter-spacing: .06em;
+    }
+
+    .preview { min-height: 520px; padding: 18px; display: grid; gap: 12px; }
+    .block-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      color: var(--paper2);
+      font-size: 12px;
+      border: 1px solid rgba(103,177,188,.2);
+      border-left: 3px solid rgba(103,177,188,.58);
+      background: linear-gradient(90deg, rgba(103,177,188,.095), rgba(103,177,188,.02));
+      padding: 7px 9px;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      border-radius: 4px;
+    }
+    .rule-note { background: linear-gradient(180deg, rgba(17,36,43,.96), rgba(7,15,18,.98)); color: #b8d6d8; padding: 16px; transform: rotate(-1deg); box-shadow: 0 18px 42px rgba(0,0,0,.46), inset 0 0 0 1px rgba(103,177,188,.24), inset 0 -18px 32px rgba(0,0,0,.28); line-height: 1.7; border-radius: 5px; position: relative; overflow: hidden; }
+    .rule-note::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, rgba(7,15,18,.92), rgba(7,15,18,.58)),
+        url("contract-cover.png") center / cover no-repeat;
+      opacity: .48;
+      filter: grayscale(.35) contrast(1.2);
+    }
+    .rule-note > * { position: relative; z-index: 1; }
+    .rule-note b { display: block; margin-bottom: 8px; }
+    .contract-dossier { display: grid; gap: 8px; }
+    .dossier-line { border: 1px solid rgba(120,168,187,.14); background: rgba(255,255,255,.028); padding: 8px 9px; color: var(--muted); font: 11px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; border-radius: 5px; }
+    .chat { border-left: 2px solid var(--red); padding-left: 12px; color: var(--paper2); line-height: 1.75; text-shadow: 0 0 16px rgba(120,168,187,.12); }
+    .mini-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .mini { border: 1px solid rgba(120,168,187,.18); border-left: 2px solid rgba(103,177,188,.38); background: rgba(120,168,187,.045); padding: 9px; color: var(--muted); font-size: 12px; line-height: 1.55; border-radius: 6px; }
+    .mini b { display: block; color: var(--text); font-weight: 500; margin-bottom: 3px; }
+
+    .game {
+      display: none;
+      grid-template-columns: 260px minmax(0, 1fr) 286px;
+      gap: 12px;
+      padding: 12px;
+      height: auto;
+      min-height: 0;
+      max-height: none;
+      flex: 1 1 auto;
+      position: relative;
+      overflow: hidden;
+    }
+    .game.show { display: grid; }
+    .panel, .stage-card { border: 1px solid rgba(120,168,187,.2); background: rgba(5,7,9,.48); padding: 13px; min-width: 0; min-height: 0; border-radius: 8px; box-shadow: inset 0 1px 0 rgba(255,255,255,.025); }
+    .panel { display: flex; flex-direction: column; gap: 10px; overflow: auto; position: relative; }
+    .ledger { display: grid; gap: 9px; }
+    .metric { border: 1px solid rgba(120,168,187,.22); border-left: 3px solid rgba(103,177,188,.45); background: linear-gradient(180deg, rgba(12,24,29,.82), rgba(5,9,12,.74)); padding: 10px; position: relative; overflow: hidden; border-radius: 6px; }
+    .metric.warn::after { content: ""; position: absolute; inset: auto 0 0 0; height: 2px; background: var(--red); }
+    .metric-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 7px; color: var(--muted); font-size: 12px; }
+    .metric strong { color: var(--text); font-size: 18px; font-weight: 500; }
+    .bar { height: 7px; background: rgba(255,255,255,.08); overflow: hidden; border-radius: 999px; }
+    .bar i { display: block; height: 100%; width: 50%; background: var(--green); transition: width .24s ease; }
+    .bar.san i { background: var(--blue); }
+    .bar.hp i { background: #bd5f51; }
+    .bar.rel i { background: var(--amber); }
+    .bar.low i { background: var(--red); }
+    .feed { display: grid; gap: 8px; }
+    .feed-item { border: 1px solid rgba(120,168,187,.16); border-left: 3px solid rgba(103,177,188,.34); background: rgba(3,9,12,.54); padding: 8px 9px; color: var(--muted); font-size: 12px; line-height: 1.48; position: relative; border-radius: 5px; }
+    .feed-item b { display: block; color: var(--paper2); font-weight: 500; margin-bottom: 3px; }
+    .achievement { border: 1px solid rgba(120,168,187,.2); border-left: 3px solid rgba(194,63,54,.38); background: rgba(120,168,187,.045); padding: 9px; color: var(--muted); font-size: 12px; line-height: 1.55; border-radius: 6px; position: relative; }
+    .achievement::after { content: "log:null / cache:0731 / █□□"; display: block; margin-top: 6px; color: rgba(103,177,188,.36); font: 10px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .achievement .btn { width: 100%; min-height: 34px; margin-top: 8px; padding: 6px 8px; font-size: 12px; }
+
+    .stage-card { display: flex; flex-direction: column; padding: 0; overflow: hidden; background: linear-gradient(180deg, rgba(15,19,24,.86), rgba(6,8,10,.9)); min-height: 0; position: relative; }
+    .stage-card > :not(.coffee-stain-layer) { position: relative; z-index: 2; }
+    .coffee-stain-layer {
+      position: absolute;
+      inset: 96px 0 0;
+      z-index: 1;
+      pointer-events: none;
+      opacity: 0;
+      overflow: hidden;
+      transition: opacity .35s ease;
+    }
+    .coffee-stain-layer img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: 52% 48%;
+      filter: saturate(.45) contrast(1.34) brightness(.48) hue-rotate(-12deg);
+      transform: scale(1.08);
+    }
+    .coffee-stain-layer::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, rgba(6,8,10,.5), rgba(6,8,10,.2) 40%, rgba(6,8,10,.8)),
+        radial-gradient(circle at 46% 38%, transparent 0 16rem, rgba(6,8,10,.38) 17rem);
+    }
+    body.week3 .coffee-stain-layer { opacity: .34; }
+    .stage-visual {
+      position: relative;
+      height: 96px;
+      flex: 0 0 auto;
+      overflow: hidden;
+      border-bottom: 1px solid rgba(120,168,187,.2);
+      background: #06080a;
+    }
+    .stage-visual img { width: 100%; height: 100%; object-fit: cover; object-position: 60% 42%; display: block; filter: saturate(.76) contrast(1.12) brightness(.66); }
+    .stage-visual::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, rgba(5,6,7,.42), rgba(5,6,7,.08), rgba(5,6,7,.64)),
+        radial-gradient(circle at 78% 18%, rgba(69,255,151,.18), transparent 13rem),
+        repeating-linear-gradient(180deg, transparent 0 4px, rgba(255,255,255,.035) 4px 5px);
+      pointer-events: none;
+    }
+    .stage-visual::after {
+      content: "CAM 17-0731  /  SAFE PASSAGE  /  REC";
+      position: absolute;
+      left: 14px;
+      bottom: 10px;
+      color: rgba(237,242,238,.72);
+      font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      letter-spacing: .08em;
+      text-shadow: 0 0 14px rgba(0,0,0,.9);
+    }
+    .stage-head { display: grid; grid-template-columns: 38px 1fr auto; gap: 10px; align-items: center; padding: 11px 16px 9px; border-bottom: 1px solid rgba(120,168,187,.2); background: linear-gradient(180deg, rgba(120,168,187,.06), transparent); }
+    .scene-icon { width: 38px; height: 38px; display: grid; place-items: center; background: linear-gradient(180deg, rgba(24,51,59,.95), rgba(6,16,19,.96)); color: #b7f3ee; border: 1px solid rgba(103,177,188,.34); font-size: 16px; border-radius: 7px; box-shadow: 0 12px 28px rgba(0,0,0,.3), 0 0 22px rgba(103,177,188,.16); }
+    .stage-head strong { display: block; font-size: 19px; font-weight: 500; margin-bottom: 2px; }
+    .clock { text-align: right; color: var(--muted); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 13px; white-space: nowrap; }
+    .notice { min-height: 26px; padding: 8px 16px 0; color: #b8d690; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; text-shadow: 0 0 18px rgba(137,155,94,.2); }
+    .story { padding: 10px 16px; min-height: 0; white-space: pre-line; line-height: 1.56; font-size: 14px; flex: 1 1 auto; overflow: auto; }
+    .story::after {
+      content: "0731_SYNC_ERROR  /  周一 周一 周一  /  ██收到██  /  cache overwritten";
+      display: block;
+      margin-top: 14px;
+      padding-top: 8px;
+      border-top: 1px dashed rgba(103,177,188,.16);
+      color: rgba(103,177,188,.28);
+      font: 10px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      letter-spacing: .08em;
+      white-space: normal;
+    }
+    body.week3 .story::after {
+      content: "0731_SYNC_ERROR  /  咖啡渍未确认  /  ███不是咖啡██  /  SAFE PASSAGE OFFLINE";
+      color: rgba(194,63,54,.42);
+    }
+    .choices { display: grid; gap: 6px; padding: 0 16px 10px; margin-top: 0; flex: 0 0 auto; }
+    .choice { text-align: left; background: linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.018)); line-height: 1.32; min-height: 32px; padding: 6px 10px; font-size: 13px; }
+    .choice-title { display: flex; align-items: center; gap: 8px; }
+    .choice-icon { width: 22px; height: 22px; display: inline-grid; place-items: center; background: rgba(120,168,187,.08); border: 1px solid rgba(120,168,187,.22); color: var(--paper2); font-size: 12px; flex: 0 0 auto; border-radius: 5px; }
+    .impact { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+    .impact span { border: 1px solid rgba(103,177,188,.22); background: rgba(255,255,255,.035); color: var(--paper2); padding: 1px 6px; font-size: 11px; line-height: 1.35; border-radius: 999px; }
+    .impact .up { color: #9bd5d1; border-color: rgba(103,177,188,.36); }
+    .impact .down { color: #e0998e; border-color: rgba(183,66,52,.35); }
+    .impact .hidden { color: #cbb7dd; border-color: rgba(138,120,155,.42); }
+    .logline { border-top: 1px solid rgba(120,168,187,.18); min-height: 42px; color: var(--muted); line-height: 1.5; font-size: 12px; padding: 8px 16px 10px; background: rgba(0,0,0,.12); }
+
+    .status-grid { display: grid; gap: 8px; }
+    .status-block { border: 1px solid rgba(120,168,187,.16); border-left: 3px solid rgba(103,177,188,.32); background: rgba(3,9,12,.5); padding: 9px 10px; line-height: 1.58; border-radius: 5px; position: relative; }
+    .status-block b { display: block; color: var(--paper2); font-weight: 500; margin-bottom: 4px; }
+    .status-block p { margin: 0; color: var(--muted); font-size: 13px; }
+    .tip-list { display: grid; gap: 7px; }
+    .tip { display: flex; gap: 8px; color: var(--muted); font-size: 12px; line-height: 1.5; border: 1px solid rgba(120,168,187,.12); background: rgba(255,255,255,.025); padding: 7px 8px; border-radius: 5px; }
+    .tip i { font-style: normal; color: var(--paper2); }
+
+    .modal { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,.82); padding: 20px; z-index: 60; backdrop-filter: blur(7px); }
+    .modal.show { display: flex; }
+    .modal-box { width: min(820px, 100%); max-height: min(820px, 88vh); overflow: auto; padding: 24px; }
+    .modal-box h2 { margin: 0 0 12px; font-size: 25px; font-weight: 500; }
+    .modal-box p { color: var(--muted); line-height: 1.75; }
+    .contract-paper {
+      position: relative;
+      background:
+        linear-gradient(90deg, rgba(6,8,10,.94), rgba(6,8,10,.72)),
+        url("contract-cover.png") center / cover no-repeat,
+        rgba(8,10,12,.95);
+    }
+    .contract-paper > * { position: relative; z-index: 1; }
+    .contract-list { margin: 0 0 18px; padding-left: 20px; color: var(--muted); line-height: 1.78; }
+    .contract-list li { margin-bottom: 8px; }
+    .manual-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 14px 0 18px; }
+    .manual-card { border: 1px solid var(--line); background: rgba(255,255,255,.035); padding: 12px; color: var(--muted); line-height: 1.6; }
+    .manual-card b { display: block; color: var(--paper2); margin-bottom: 5px; }
+    .achievement-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 14px 0 18px; }
+    .achievement-card {
+      border: 1px solid rgba(120,168,187,.2);
+      border-left: 3px solid rgba(103,177,188,.42);
+      background: rgba(255,255,255,.035);
+      padding: 11px 12px;
+      min-height: 92px;
+      border-radius: 6px;
+    }
+    .achievement-card.locked {
+      border-left-color: rgba(194,63,54,.36);
+      filter: saturate(.65);
+      opacity: .72;
+    }
+    .achievement-card b { display: block; color: var(--paper2); margin-bottom: 5px; font-weight: 500; }
+    .achievement-card p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.58; }
+    .achievement-card em { display: block; margin-top: 8px; color: rgba(194,63,54,.72); font-style: normal; font-size: 12px; line-height: 1.55; }
+    .achievement-card small { display: block; margin-bottom: 5px; color: rgba(103,177,188,.58); font: 10px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .share-card {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(120,168,187,.24);
+      background:
+        linear-gradient(90deg, rgba(5,6,7,.94), rgba(5,6,7,.64)),
+        url("contract-cover.png") center / cover no-repeat,
+        rgba(8,10,12,.95);
+      padding: 18px;
+      border-radius: 8px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.025), 0 20px 50px rgba(0,0,0,.42);
+    }
+    .share-card h3 { margin: 0 0 6px; font-size: clamp(26px, 4vw, 42px); font-weight: 500; line-height: 1.05; }
+    .share-card p { margin: 0; color: var(--muted); line-height: 1.65; }
+    .share-grid { display: grid; grid-template-columns: 1fr 132px; gap: 12px; align-items: end; margin-top: 16px; }
+    .share-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .share-stat { border: 1px solid rgba(120,168,187,.18); background: rgba(0,0,0,.26); padding: 8px 9px; border-radius: 5px; }
+    .share-stat b { display: block; color: var(--paper2); font-weight: 500; margin-bottom: 3px; }
+    .share-stat span { color: var(--text); font-size: 18px; }
+    .share-qr { display: grid; justify-items: center; gap: 6px; }
+    .share-qr img { width: 124px; height: 124px; background: #eef3ef; padding: 7px; border-radius: 5px; }
+    .share-link { margin-top: 12px; word-break: break-all; color: rgba(184,199,200,.82); font: 11px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .share-image {
+      margin-top: 14px;
+      height: 120px;
+      border: 1px solid rgba(120,168,187,.18);
+      background: url("starloop-office.png") center / cover no-repeat;
+      filter: saturate(.7) contrast(1.12) brightness(.68);
+      border-radius: 6px;
+      position: relative;
+    }
+    .share-image::after {
+      content: "RESULT CARD / SAFE PASSAGE / SCAN TO ENTER";
+      position: absolute;
+      left: 10px;
+      bottom: 8px;
+      color: rgba(237,242,238,.72);
+      font: 10px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      letter-spacing: .08em;
+      text-shadow: 0 0 14px rgba(0,0,0,.9);
+    }
+
+    .ending { display: none; min-height: 0; flex: 1 1 auto; padding: 30px; overflow: auto; position: relative; }
+    .ending.show { display: block; }
+    .ending::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(90deg, rgba(5,6,7,.9), rgba(5,6,7,.72)),
+        radial-gradient(circle at 82% 12%, rgba(194,63,54,.18), transparent 22rem),
+        repeating-linear-gradient(180deg, transparent 0 5px, rgba(255,255,255,.025) 5px 6px);
+    }
+    .ending > * { position: relative; z-index: 1; }
+    .ending h2 { margin: 14px 0 18px; font-weight: 500; font-size: clamp(34px, 5vw, 64px); line-height: 1.06; max-width: 900px; }
+    .ending-text { max-width: 820px; display: grid; gap: 12px; }
+    .ending-text p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.78;
+      padding-left: 14px;
+      border-left: 2px solid rgba(194,63,54,.34);
+      background: linear-gradient(90deg, rgba(194,63,54,.045), transparent 68%);
+    }
+    .ending .actions { margin-top: 22px; }
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 26px;
+      transform: translateX(-50%) translateY(16px);
+      z-index: 80;
+      min-width: 180px;
+      border: 1px solid rgba(194,63,54,.55);
+      background: rgba(25,7,7,.94);
+      color: #f2c8c3;
+      padding: 12px 16px;
+      border-radius: 8px;
+      box-shadow: 0 18px 48px rgba(0,0,0,.55), 0 0 28px rgba(194,63,54,.24);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .18s ease, transform .18s ease;
+      text-align: center;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      33% { transform: translateX(-2px); }
+      66% { transform: translateX(2px); }
+    }
+    @keyframes drift {
+      from { background-position: 0 0, 0 0, 0 0, 0 0; }
+      to { background-position: 97px 131px, -151px 109px, 121px -137px, -173px -149px; }
+    }
+    @keyframes glare {
+      0%, 100% { opacity: .16; transform: translateX(-3%); }
+      50% { opacity: .42; transform: translateX(4%); }
+    }
+    @keyframes screenPulse {
+      0%, 72%, 100% { filter: saturate(.76) contrast(1.12) brightness(.66); transform: translateX(0); }
+      73% { filter: saturate(.4) contrast(1.5) brightness(1.08); transform: translateX(-1px); }
+      76% { filter: saturate(1.15) contrast(1.35) brightness(.44); transform: translateX(1px); }
+    }
+    @keyframes exitBlink {
+      0%, 44%, 100% { opacity: .94; }
+      45%, 58% { opacity: .18; }
+    }
+    @keyframes redBloom {
+      0%, 100% { opacity: .38; transform: scale(1); }
+      45% { opacity: .78; transform: scale(1.025); }
+      62% { opacity: .52; transform: scale(1.01); }
+    }
+    @keyframes pageFlicker {
+      0%, 70%, 100% { filter: blur(.35px) brightness(1); }
+      71% { filter: blur(.7px) brightness(1.42) contrast(1.2); }
+      73% { filter: blur(.3px) brightness(.62) contrast(1.45); }
+      75% { filter: blur(.35px) brightness(1.1); }
+    }
+    @keyframes textBlink {
+      0%, 62%, 100% { opacity: .25; }
+      63%, 76% { opacity: .9; }
+    }
+
+    @media (max-width: 1040px) {
+      .app { height: auto; min-height: 100vh; overflow: visible; }
+      .hero, .game.show { grid-template-columns: 1fr; }
+      .cover-fragments, .achievement-grid { grid-template-columns: 1fr; }
+      .share-grid, .share-stats { grid-template-columns: 1fr; }
+      .game { height: auto; max-height: none; overflow: visible; flex: none; }
+      .ledger, .feed, .status-grid { grid-template-columns: repeat(3, 1fr); display: grid; }
+      .panel { display: block; }
+      .panel > * + * { margin-top: 12px; }
+    }
+    @media (max-width: 680px) {
+      .app { width: min(100% - 18px, 1200px); padding-top: 12px; }
+      .topbar, .brand { align-items: flex-start; flex-direction: column; }
+      .top-actions, .actions { justify-content: flex-start; }
+      .cover, .preview, .ending { padding: 20px; min-height: auto; }
+      .office-illus { display: none; }
+      .stage-visual { height: 118px; }
+      .mini-grid, .ledger, .feed, .status-grid, .manual-grid { grid-template-columns: 1fr; }
+      .stage-head { grid-template-columns: 38px 1fr; }
+      .clock { grid-column: 1 / -1; text-align: left; }
+      .story { min-height: 260px; font-size: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <div class="topbar">
+      <div class="brand">
+        <span class="logo">环</span>
+        <div>
+          <strong>误入007：牛马循环怪谈</strong>
+          <span>你能撑过第七天吗？</span>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button class="btn" id="manualBtn" type="button">游戏说明</button>
+        <button class="btn" id="contractBtn" type="button">员工合同</button>
+        <button class="btn" id="achievementBtnTop" type="button">成就档案</button>
+        <button class="btn" id="restartTopBtn" type="button">重新开始</button>
+      </div>
+    </div>
+
+    <section class="hero" id="startView">
+      <div class="cover">
+        <div class="badge">招聘平台 · 已投递 127 天 · 互联网方向 · 今日收到 1 个 offer</div>
+        <h1>你能撑过<br>第七天吗？</h1>
+        <p class="lead">房租还有三天到期，银行卡余额只够撑到下周。你把期望薪资往下调了三次，终于收到一家互联网公司的 offer：某事项组、包三餐、事项稳定、今晚入职。</p>
+        <div class="actions">
+          <button class="btn primary" id="startBtn" type="button">查看并签署合同</button>
+          <button class="btn" id="manualBtn2" type="button">先看游戏说明</button>
+          <button class="btn" id="achievementBtnStart" type="button">成就档案</button>
+        </div>
+        <div class="tiny" style="margin-top:16px">此刻的你还不知道，所谓稳定，是每天 00:07 都稳定地回到同一个工位。</div>
+        <div class="cover-fragments" aria-hidden="true">
+          <div class="fragment">HR_SYNC 00:07 / offer accepted / refuse_field=null / 周一周一周一</div>
+          <div class="fragment">contract.scan: stain detected / handprint matched / employee_id pending</div>
+          <div class="fragment">群聊缓存：收到 收到 收0到 / 你已被加入 17 个事项群</div>
+          <div class="fragment">SAFE_PASSAGE: false / elevator.floor=-- / badge.owner=你?</div>
+        </div>
+        <div class="office-illus" aria-hidden="true">
+          <img src="contract-cover.png" alt="">
+        </div>
+      </div>
+
+      <aside class="preview">
+        <div class="block-title"><span>开局提示</span><span>未签署</span></div>
+        <div class="chat">“合同不用细看，都是模板。”<br>“新同学到了吗？先把权限开了。”<br>“这个版本很关键，大家今晚辛苦一下。”</div>
+        <div class="rule-note">
+          <b>长期在线确认书</b>
+          <span>这是一份互联网公司入职合同。它只有十条，但每一条都像有人已经替你踩过一次坑。</span>
+        </div>
+        <div class="contract-dossier" aria-hidden="true">
+          <div class="dossier-line">档案封皮识别：XX 科技有限公司 / 劳动合同 / 自愿签订</div>
+          <div class="dossier-line">异常备注：封面手印与未入职员工掌纹一致，日期字段无法填写。</div>
+          <div class="dossier-line">碎片日志：加班是福报 / 996是常态 / 007是成长</div>
+        </div>
+        <div class="mini-grid">
+          <div class="mini"><b>工位</b>不要确认隔壁的人是否还在。</div>
+          <div class="mini"><b>咖啡</b>第二杯不是为你准备的。</div>
+          <div class="mini"><b>出口</b>绿色标识不一定通向楼外。</div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="game" id="gameView">
+      <aside class="panel">
+        <div class="block-title"><span>员工面板</span><span id="leftDay">第 1 天</span></div>
+        <div class="ledger">
+          <div class="metric" id="kpiMetric">
+            <div class="metric-head"><span>绩效 KPI</span><strong id="kpiText">50</strong></div>
+            <div class="bar" id="kpiBar"><i></i></div>
+          </div>
+          <div class="metric" id="hpMetric">
+            <div class="metric-head"><span>身体状态</span><strong id="hpText">85</strong></div>
+            <div class="bar hp" id="hpBar"><i></i></div>
+          </div>
+          <div class="metric" id="sanMetric">
+            <div class="metric-head"><span>精神状态</span><strong id="sanText">70</strong></div>
+            <div class="bar san" id="sanBar"><i></i></div>
+          </div>
+          <div class="metric" id="relMetric">
+            <div class="metric-head"><span>同事关系</span><strong id="relText">45</strong></div>
+            <div class="bar rel" id="relBar"><i></i></div>
+          </div>
+        </div>
+        <div class="block-title"><span>内网动向</span><span id="heatText">热度 12</span></div>
+        <div class="feed" id="feed"></div>
+        <div class="block-title"><span>异常档案</span><span id="achCount">0</span></div>
+        <div id="achievements" class="achievement">暂无。你还没被系统特别记住。</div>
+      </aside>
+
+      <section class="stage-card">
+        <div class="coffee-stain-layer" aria-hidden="true">
+          <img src="coffee-stain-office.png" alt="">
+        </div>
+        <div class="stage-visual" aria-hidden="true">
+          <img src="starloop-office.png" alt="">
+        </div>
+        <div class="stage-head">
+          <div class="scene-icon" id="sceneIcon">⌁</div>
+          <div>
+            <strong id="sceneTitle">第一个白天</strong>
+            <span class="tiny" id="sceneSub">某事项组 · 工位 17-0731</span>
+          </div>
+          <div class="clock" id="clockText">星期一 09:46</div>
+        </div>
+        <div class="notice" id="notice"></div>
+        <div class="story" id="story"></div>
+        <div class="choices" id="choices"></div>
+        <div class="logline" id="logline"></div>
+      </section>
+
+      <aside class="panel">
+        <div class="block-title"><span>今日状态</span><span>自动记录</span></div>
+        <div class="status-grid">
+          <div class="status-block"><b>身体状况</b><p id="bodyStatus"></p></div>
+          <div class="status-block"><b>工作状况</b><p id="workStatus"></p></div>
+          <div class="status-block"><b>精神状况</b><p id="mindStatus"></p></div>
+        </div>
+        <div class="block-title"><span>值班提示</span><span>只显示部分</span></div>
+        <div class="tip-list">
+          <div class="tip"><i>01</i><span>如果安全通道灯一直亮着，不要第一个过去。</span></div>
+          <div class="tip"><i>02</i><span>屏幕自动输入时，请先确认自己的手还在桌上。</span></div>
+          <div class="tip"><i>03</i><span>有些文件不是被删除了，只是换了你的名字。</span></div>
+        </div>
+        <div class="block-title"><span>你心里那句话</span><span>未发送</span></div>
+        <div class="status-block"><p id="innerVoice"></p></div>
+      </aside>
+    </section>
+
+    <section class="ending" id="endingView">
+      <div class="badge" id="endingBadge">结局</div>
+      <h2 id="endingTitle"></h2>
+      <div class="ending-text" id="endingText"></div>
+      <div class="actions">
+        <button class="btn primary" id="restartBtn" type="button">重新开始</button>
+        <button class="btn primary" id="shareEndingBtn" type="button">分享结局</button>
+        <button class="btn" id="achievementBtnEnd" type="button">查看成就</button>
+        <button class="btn" id="logBtn" type="button">查看本周目记录</button>
+      </div>
+      <p class="tiny" id="finalLog"></p>
+    </section>
+  </main>
+
+  <div class="modal" id="manualModal" role="dialog" aria-modal="true" aria-labelledby="manualTitle">
+    <div class="modal-box">
+      <h2 id="manualTitle">游戏说明</h2>
+      <p>本作是虚构的都市灵异互动故事，与任何现实公司、组织或个人无关。</p>
+      <p>你将扮演一名走投无路的新员工，在一家公司度过一段不断失真的 007 入职期。阅读事件，做出选择，留意屏幕上偶尔出现的异常提示。</p>
+      <p>“员工合同”既是入职文件，也是你能看到的唯一守则。签下名字后，工牌会生效。</p>
+      <button class="btn primary" id="closeManualBtn" type="button">知道了</button>
+    </div>
+  </div>
+
+  <div class="modal" id="contractModal" role="dialog" aria-modal="true" aria-labelledby="contractTitle">
+    <div class="modal-box contract-paper">
+      <h2 id="contractTitle">长期在线确认书</h2>
+      <ol class="contract-list">
+        <li>乙方确认：本文件为入职必要材料。若醒来后发现直属称谓变更，请勿追问昨晚是谁同意的。</li>
+        <li>群聊输入框自动出现“收到”时，请直接发送。删除三次后，将由本人工号代为发送。</li>
+        <li>每日 00:07 后仍亮起的工位，不一定代表有人仍在工位。请勿触摸椅背，尤其是温热处。</li>
+        <li>咖啡机吐出的第二杯饮品不得饮用。若液面呈深红色，说明冲泡流程正常；若杯身写着乙方姓名，请离开茶水间。</li>
+        <li>安全通道仅供紧急情况使用。若绿色指示灯指向办公区深处，请相信指示灯。若它指向你，请低头。</li>
+        <li>不得追溯事项创建人、排期创建人及本人离职记录创建人。检索结果如果眨眼，请关闭页面。</li>
+        <li>通讯录中如出现另一名同名同工号人员，请关闭页面。若对方先发消息，请不要回复；若对方回复“我也是你”，请不要截图。</li>
+        <li>听见无人键盘输入时，应保持安静。键盘输入内容默认为乙方意见。█已确认█ █已确认█</li>
+        <li>收到“沟通邀请”应准时到场。会议室无窗、无门把手、无录音文件均属正常配置；会议结束后请确认自己仍有影子。</li>
+        <li>乙方签署后，即视为同意领取工牌、进入事项，并保持 007 必要在线。拒绝字段不存在。拒绝字段不存在。拒绝字█不存在。</li>
+      </ol>
+      <button class="btn primary" id="signContractBtn" type="button">签字，领取工牌</button>
+      <button class="btn" id="closeContractBtn" type="button">暂不签字</button>
+    </div>
+  </div>
+  <div class="modal" id="achievementModal" role="dialog" aria-modal="true" aria-labelledby="achievementTitle">
+    <div class="modal-box">
+      <h2 id="achievementTitle">成就档案</h2>
+      <p id="achievementSummary">本周目已解锁 0 项。未解锁档案将保持封存。</p>
+      <div class="achievement-grid" id="achievementGrid"></div>
+      <button class="btn primary" id="closeAchievementBtn" type="button">关闭档案</button>
+    </div>
+  </div>
+  <div class="modal" id="shareModal" role="dialog" aria-modal="true" aria-labelledby="shareTitle">
+    <div class="modal-box">
+      <h2 id="shareTitle">结局小卡片</h2>
+      <div class="share-card" id="shareCard"></div>
+      <div class="actions" style="margin-top:16px">
+        <button class="btn primary" id="closeShareBtn" type="button">收起卡片</button>
+      </div>
+    </div>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const initialState = () => ({
+      turn: 0,
+      kpi: 50,
+      hp: 85,
+      san: 70,
+      rel: 45,
+      aware: 0,
+      evidence: 0,
+      flags: {
+        signed: false,
+        boss: false,
+        sick: false,
+        collapse: false,
+        hallucination: false,
+        isolation: false,
+        favorite: false,
+        duplicate: false,
+        archive: false,
+        bloodCoffee: false
+      },
+      history: [],
+      achievements: [],
+      currentEnding: null
+    });
+
+    let state = initialState();
+    const PUBLIC_GAME_URL = "https://shenxiang2001.github.io/night-shift-loop-xq7m/";
+
+    const feeds = [
+      [["社会新闻", "某互联网公司连续三周关闭办公区窗帘，回应称为设备眩光测试。"], ["公司八卦", "B3 层最近又招新人了，offer 发得特别快。"], ["传闻", "这家公司的夜宵很好吃，吃完就不太想回家。"]],
+      [["内网热帖", "《新同学入职第一天就被拉进项目，是重视还是预警？》"], ["群聊截图", "“别问需求是谁提的，先做。”"], ["传闻", "合同背面有字，灯暗的时候会渗出来。"]],
+      [["社会新闻", "青年失眠门诊预约量上升，医生提醒不要把工位当第二卧室。"], ["公司八卦", "茶水间的拖把池最近总是棕红色，保洁说只是咖啡。"], ["传闻", "组织架构里搜自己名字，第二个会回你消息。"]],
+      [["内网热帖", "《如何优雅承接模糊需求》浏览量破万。"], ["群聊截图", "“这事先别扩散，月底再看。”"], ["传闻", "屏幕上方扩散开的暗红，干了以后和咖啡渍颜色一样。"]],
+      [["社会新闻", "互联网园区电梯深夜停靠未知楼层，物业称监控硬盘损坏。"], ["公司八卦", "核心群人数一直是 7，退群也没用。"], ["传闻", "被叫自己人以后，就不容易被裁了，也不容易走了。"]]
+    ];
+
+    const baseScenes = [
+      {
+        id: "day1",
+        icon: "讯",
+        title: "第一个白天",
+        sub: "某事项组 · 工位 17-0731",
+        time: "星期一 09:46",
+        notice: "【企业微信】这个版本很关键，大家今晚辛苦一下。",
+        text: "你签完合同，工牌贴到胸口的一瞬间，闸机自己开了。\n\n这家公司的办公区像一间没有尽头的互联网公司：玻璃墙、开放工位、满墙标语、每个人都戴着降噪耳机。\n\n你还没弄清电脑密码，群聊已经把你拉进去。输入框里已经替你打好了两个字：收到。\n\n你还没有按发送，消息却显示已读。",
+        choices: [
+          choice("立刻回复", "发", { kpi: 8, san: -2, hp: -3 }, "你点了发送。上面的人回了一个微笑表情。"),
+          choice("先问需求背景", "问", { aware: 9, kpi: -4 }, "群里安静了十秒。随后有人说：背景不重要，先动起来。"),
+          choice("私聊旁边同事求助", "友", { rel: 8, kpi: -2 }, "他只回你一句：别太快表现好。")
+        ]
+      },
+      {
+        id: "doc",
+        icon: "档",
+        title: "第一个深夜",
+        sub: "需求文档 · 自动保存",
+        time: "星期一 23:47",
+        notice: "【文档】已有新的排期与你关联。",
+        text: "需求文档自动刷新。\n\n最后一页多出一行你没写过的排期。负责人是你，截止时间是昨天。\n\n你想找修改记录，鼠标自己滑到页面底部。那里有一行小字：该版本由本人创建。\n\n你确定自己的手没有碰鼠标。",
+        choices: [
+          choice("接下排期", "接", { kpi: 10, san: -3, hp: -6 }, "你把截止时间改成今晚。系统提示：改动合理。"),
+          choice("截图留证", "证", { aware: 11, rel: -4 }, "截图刚保存，文件名自动变成了“个人原因”。", { evidence: 1 }),
+          choice("装作没看见", "避", { hp: 5, san: 3, kpi: -8 }, "文档页签自己跳到最前。它知道你看见了。")
+        ]
+      },
+      {
+        id: "keyboard",
+        icon: "键",
+        title: "第二个深夜",
+        sub: "开放办公区",
+        time: "星期二 00:18",
+        notice: "【座位监控】夜间办公状态正常。",
+        text: "隔壁工位还有键盘声。\n\n屏幕是黑的，椅子是空的。键帽自己陷下去，又弹起来，像有一双看不见的手在替谁回消息。\n\n键盘停在“收到”两个字后，又删掉，又重新打出来。\n\n你闻到一股很淡的冷咖啡味，里面混着铁锈味。屏幕边缘有一条深色痕迹，你分不清那是溅干的咖啡，还是凝住的血。",
+        choices: [
+          choice("继续工作", "工", { kpi: 8, san: -5, hp: -7 }, "你没有看隔壁。隔壁也没有看你。"),
+          choice("走近确认", "查", { aware: 18, san: -10, hp: -3 }, "键盘停下了。你的电脑开始自己打字：我还在。", { evidence: 1 }),
+          choice("关机离开", "离", { hp: 8, san: 5, kpi: -10 }, "你走出公司。门禁记录显示你仍在座位上。")
+        ]
+      },
+      {
+        id: "meeting",
+        icon: "会",
+        title: "第三个白天",
+        sub: "周会 · 会议室 4A",
+        time: "星期二 10:30",
+        notice: "【会议纪要】请确认你承担以下事项。",
+        text: "上面的人说你“抗压不错”。\n\n同事们低头看电脑，像怕这个评价会传染。\n\n投影屏闪了一下，你看见会议纪要里早就写好了你的回答，连停顿的位置都标了出来。\n\n你还没开口，纪要已经显示：已确认。",
+        choices: [
+          choice("主动补充进度", "说", { kpi: 9, rel: -6 }, "对方点头。同事没有。"),
+          choice("把功劳分给同事", "分", { rel: 9, kpi: -3 }, "有人私聊你一句谢谢，随后又撤回了。"),
+          choice("问上周的问题谁负责", "追", { aware: 10, rel: -2 }, "会议室安静了一秒。纪要里删掉了“上周”两个字。")
+        ]
+      },
+      {
+        id: "duplicate",
+        icon: "影",
+        title: "第三个下午",
+        sub: "组织架构",
+        time: "星期三 14:05",
+        notice: "【组织架构】检索到相似员工。",
+        text: "你在组织架构里搜自己的名字。\n\n出现两个结果。\n\n第一个是你，在线。第二个也是你，状态是已离职，最后活跃时间：刚刚。\n\n第二个头像忽然亮起，给你发来一句话：别喝咖啡。\n\n消息刚弹出，屏幕顶端慢慢垂下一道暗红的线。它停在头像上方，像有人用指甲划掉了一张脸。",
+        choices: [
+          choice("点开另一个头像", "开", { aware: 16, san: -8 }, "头像加载失败，只露出一张你昨晚没见过的工牌照。", { flag: "duplicate", evidence: 1 }),
+          choice("立刻关闭页面", "关", { san: 8, aware: -5 }, "你关掉页面。搜索框里仍留着你的名字。"),
+          choice("把截图发给上级", "报", { rel: -10, kpi: 4 }, "对方回复：先不要扩散，月底再看。")
+        ]
+      },
+      {
+        id: "cleaner",
+        icon: "问",
+        title: "第三个深夜",
+        sub: "茶水间走廊",
+        time: "星期三 02:03",
+        notice: "【物业】清洁作业进行中。",
+        text: "清洁阿姨推着车经过你的工位。\n\n她没有看垃圾桶，只看着你。清洁车里堆着很多旧工牌，最上面一张是你的照片。\n\n“今天星期几？”她问。\n\n你张开嘴，忽然卡住了。",
+        choices: [
+          choice("回答星期三", "答", { san: 6, hp: 3, aware: 9 }, "她点点头，说：你还记得就好。"),
+          choice("说不知道", "失", { aware: 13, san: -7 }, "她把垃圾袋扎紧，里面传来手机震动声。", { evidence: 1 }),
+          choice("假装没听见", "默", { kpi: 5, san: -3, hp: -3 }, "她走后，你的桌面上多了一张请假条。")
+        ]
+      },
+      {
+        id: "safepassage",
+        icon: "道",
+        title: "今天的白天",
+        sub: "安全通道",
+        time: "今天？ 10:??",
+        notice: "【物业】请勿长时间停留于疏散通道。",
+        text: "安全通道的绿灯一直亮着。\n\n地面箭头指向玻璃门外，门外却不是楼梯间，而是一排和你工位一模一样的屏幕。\n\n墙上的标语写着：以客户为中心。\n\n你走近时，标语下面多了一行小字：以你为样本。",
+        choices: [
+          choice("沿着箭头往前走", "行", { aware: 15, san: -8, hp: -3 }, "你走了三十七步，回到自己的工位背后。", { evidence: 1 }),
+          choice("回头找同事一起看", "喊", { rel: 8, san: -3 }, "同事看了一眼，说那里一直是墙。"),
+          choice("用工牌刷开玻璃门", "刷", { kpi: -8, aware: 12 }, "门禁响了一声：离职员工无权离场。", { evidence: 1 })
+        ]
+      },
+      {
+        id: "core",
+        icon: "核",
+        title: "第几个白天",
+        sub: "核心群",
+        time: "星期 · 上午",
+        notice: "【群通知】你已加入核心群。",
+        text: "有人把你拉进“核心群”。\n\n群里只有几个头像、一个人事窗口、一个权限窗口，和三个头像灰掉的人。\n\n灰掉的人每隔几秒就会同时显示“正在输入”。\n\n群公告写着：优先保护高价值同学。",
+        choices: [
+          choice("接受安排", "受", { kpi: 10, rel: 9, san: -4, hp: -4 }, "有人私聊你：欢迎进入内圈。", { flag: "core" }),
+          choice("询问项目边界", "界", { aware: 14, kpi: -6 }, "群公告刷新：边界感是低主人翁意识。"),
+          choice("退出群聊", "退", { san: 6, rel: -12 }, "你退出后，群人数没有减少。")
+        ]
+      },
+      {
+        id: "elevator",
+        icon: "梯",
+        title: "第几个深夜",
+        sub: "电梯间",
+        time: "星期 · 凌晨？",
+        notice: "【电梯维护】请勿停留在未知楼层。",
+        text: "电梯停在没有数字的一层。\n\n门开着。里面站着一个穿公司文化衫的人，胸牌写着你的名字。\n\n他没有出来，只是替你按住开门键。",
+        choices: [
+          choice("走进电梯", "入", { aware: 20, san: -10, hp: -4 }, "电梯里没有镜子，你却看见自己正在外面等。", { evidence: 1 }),
+          choice("后退一步", "退", { san: 6, aware: 6 }, "门合上前，他用你的声音说：明天见。"),
+          choice("拍照留存", "存", { aware: 13, rel: -9 }, "照片里只有一个空电梯，和你倒映在门上的脸。", { evidence: 1 })
+        ]
+      },
+      {
+        id: "final",
+        icon: "签",
+        title: "无法同步的深夜",
+        sub: "在线确认",
+        time: "在线",
+        notice: "【系统】是否继续保持在线？",
+        text: "办公室很安静。你分不清这是深夜，还是另一个早晨。\n\n屏幕中央只有一个问题：是否继续保持在线？\n\n你的手指悬在触控板上。企业微信没有再响。它在等你先动。",
+        final: true,
+        choices: [
+          terminal("继续在线", "online"),
+          terminal("关闭电脑", "shutdown"),
+          terminal("打开历史记录", "archive")
+        ]
+      }
+    ];
+
+    const specialScenes = [
+      {
+        id: "bossLow",
+        condition: () => state.kpi <= 30 && !state.flags.boss,
+        setFlag: "boss",
+        scene: {
+          icon: "怒",
+          title: "低绩效提醒",
+          sub: "小会议室",
+          time: "星期？ 18:30",
+          notice: "【日程】你最近状态有点危险。",
+          text: "有人把你叫到一间很小的会议室。\n\n对方没有骂脏话，只是把你的头像拖到一张红色表格里。\n\n“这里不养闲人。”他说，“你要么证明自己，要么准备沟通。”\n\n你低头看见桌面上有一滴暗红色液体，正慢慢渗进你的绩效表。",
+          choices: [
+            choice("当场认错并接更多活", "扛", { kpi: 16, san: -5, hp: -10, rel: -4 }, "对方满意了。你的待办列表多出七条。"),
+            choice("要求明确优先级", "序", { kpi: -5, san: 6, hp: 3, aware: 9 }, "对方看着你：你开始不像新人了。"),
+            choice("保存红色表格", "存", { aware: 14, rel: -6 }, "截图里没有表格，只有一张无窗会议室照片。", { evidence: 1 })
+          ]
+        }
+      },
+      {
+        id: "hpLow",
+        condition: () => state.hp <= 35 && !state.flags.sick,
+        setFlag: "sick",
+        scene: {
+          icon: "晕",
+          title: "工位晕倒",
+          sub: "开放办公区",
+          time: "00:07",
+          notice: "【健康提醒】检测到你已连续在线。",
+          text: "你站起来时，整个办公区像被人拧了一下。\n\n灯管拉成长线，屏幕上的字化成一片白光。你听见键盘还在动，可你的手已经离开桌面。\n\n倒下去之前，你看见自己的椅子上还坐着一个人，正替你回复：收到。",
+          choices: [
+            choice("爬回工位继续写", "爬", { kpi: 10, hp: -18, san: -6 }, "你坐回去时，椅子是温的。"),
+            choice("拨打急救电话", "救", { hp: 16, san: 4, kpi: -12, rel: -3 }, "电话接通了，听筒里却传来企业微信提示音。"),
+            choice("盯住椅子上的自己", "盯", { aware: 20, san: -10 }, "那个人回头，对你做了一个噤声的手势。", { evidence: 1 })
+          ]
+        }
+      },
+      {
+        id: "sanLow",
+        condition: () => state.san <= 32 && !state.flags.hallucination,
+        setFlag: "hallucination",
+        scene: {
+          icon: "眩",
+          title: "文字开始重影",
+          sub: "屏幕前",
+          time: "星期？ --:--",
+          notice: "【系统】检测到你正在尝试理解。",
+          text: "你盯着屏幕，字开始慢慢分层。\n\n第一层是需求文档，第二层是周报，第三层是你没有写过的离职申请。\n\n同事从你身后经过，玻璃反光里却没有他的脸。\n\n你眨了一下眼。屏幕替你把所有窗口排好，像它比你更清楚你接下来该做什么。",
+          choices: [
+            choice("相信屏幕排好的窗口", "信", { kpi: 8, san: -14 }, "所有窗口同时显示：继续。"),
+            choice("闭眼数到十", "闭", { san: 14, hp: -4, kpi: -6 }, "数到七时，你听见有人替你数完了后面三个数。"),
+            choice("把离职申请保存下来", "存", { aware: 18, san: -6 }, "文件名自动变成：未入职前已提交。", { evidence: 1 })
+          ]
+        }
+      },
+      {
+        id: "relLow",
+        condition: () => state.rel <= 24 && !state.flags.isolation,
+        setFlag: "isolation",
+        scene: {
+          icon: "默",
+          title: "群聊沉默",
+          sub: "事项群",
+          time: "已读 17",
+          notice: "【组织提醒】请关注团队协作氛围。",
+          text: "你的消息发出去后，群里出现一排已读。\n\n没人回复。没人正在输入。\n\n过了一会儿，会议纪要刷新：风险由你承担。\n\n你抬头看同事，他们都在看屏幕，屏幕里倒映着你一个人的脸。",
+          choices: [
+            choice("主动背锅", "背", { kpi: 9, rel: -8, san: -5 }, "群里终于有人回复：辛苦。"),
+            choice("逐个私聊解释", "私", { rel: 12, san: -4 }, "有人回你一个标点，又撤回了。"),
+            choice("公开贴出证据", "贴", { aware: 12, kpi: -8, rel: -8 }, "证据发出后，群名变成了“历史群”。", { evidence: 1 })
+          ]
+        }
+      },
+      {
+        id: "favoriteHigh",
+        condition: () => state.kpi >= 82 && state.rel >= 68 && !state.flags.favorite,
+        setFlag: "favorite",
+        scene: {
+          icon: "嫡",
+          title: "自己人",
+          sub: "茶水间",
+          time: "今天？ 10:??",
+          notice: "【私聊】你现在很像自己人了。",
+          text: "有人把你叫到茶水间。\n\n“你现在很像自己人了。”\n\n他说这话时，咖啡机吐出第二杯冰美式。杯身标签是你的名字，日期是三天前。\n\n液体沿着杯壁晃了一下，颜色比咖啡更红。桌面旧渍被灯光照出一圈暗边，你忽然意识到，没人能证明那一圈一定是咖啡。",
+          choices: [
+            choice("喝下去", "饮", { kpi: 10, rel: 8, hp: -14, san: -4 }, "味道是铁锈和糖浆。对方说：欢迎进入核心事项。", { flag: "bloodCoffee" }),
+            choice("假装喝一口", "假", { rel: 5, aware: 12, san: -5 }, "杯子里的液面没有少。对方却满意地点头。"),
+            choice("推开这杯咖啡", "推", { hp: 8, san: 5, kpi: -10, rel: -10 }, "对方的笑慢慢收回去：你还没想清楚。")
+          ]
+        }
+      },
+      {
+        id: "archiveHigh",
+        condition: () => state.aware >= 72 && !state.flags.archive,
+        setFlag: "archive",
+        scene: {
+          icon: "档",
+          title: "封存记录",
+          sub: "内网后台",
+          time: "--:--",
+          notice: "【系统】你正在访问不该留下的记录。",
+          text: "你在内网搜索自己的工号。\n\n页面闪了三次，弹出一个从未见过的文件夹：离职后仍在线人员。\n\n里面有很多张工牌照。每个人的眼睛都像刚被屏幕照过。\n\n最后一张，是你。",
+          choices: [
+            choice("下载全部记录", "载", { aware: 18, kpi: -8, san: -6 }, "下载进度停在 99%。你听见身后有人说：别急。", { evidence: 2 }),
+            choice("只看自己的记录", "己", { aware: 12, san: -5 }, "你的入职日期不断刷新，最后停在明天。", { evidence: 1 }),
+            choice("立刻关闭后台", "关", { san: 6, aware: -6 }, "后台关闭后，屏幕上还留着你的照片。")
+          ]
+        }
+      }
+    ];
+
+    const endings = {
+      truth: {
+        badge: "结局 01 · 真相离职",
+        title: "工牌裂开时，门外没有星期一",
+        text: "你没有继续在线。你把封存记录、红色绩效表、第二个自己的头像和安全通道照片压成一个很小的文件。\n\n发送按钮灰了三秒，又亮起来。第一次，邮件真的发出去了。\n\n闸机没有识别你的脸。它只识别胸口那张工牌。工牌裂开时，里面不是芯片，是一小片已经干掉的深红色纸屑。\n\n楼下天亮得很不真实。你仍然听见消息提示音，但这一次，它从楼上传来。"
+      },
+      insider: {
+        badge: "结局 02 · 亲信晋升",
+        title: "你成了会说话的那盏灯",
+        text: "你继续保持在线。第二天，你被拉进更多核心群。有人开始叫你“自己人”，人事窗口让你旁听沟通，权限窗口给你开了新的入口。\n\n你终于不会被裁了。也终于不会下班了。\n\n很久以后，一个新人问你：“为什么那个键盘没人碰也会动？”\n\n你看着他胸口还没磨旧的工牌，笑得很自然：先做，背景不重要。安全通道的绿灯在你身后亮了一下，像在点头。"
+      },
+      layoff: {
+        badge: "结局 03 · 被裁员",
+        title: "温和沟通没有录音",
+        text: "你没有成为自己人，也没有保住足够体面。会议很短，措辞很温和。\n\n对方说不是你的问题，是组织阶段性选择。桌上的水没有动过，杯底却留下一圈红印。\n\n你走出会议室时，工位上的电脑还亮着。聊天框里有人用你的账号回复：收到。\n\n第二天，内网出现一名新员工，工号和你一样。他的头像，是你刚被删除的那张。"
+      },
+      overwork: {
+        badge: "结局 04 · 过劳",
+        title: "键盘替你活了下来",
+        text: "你终于没有回消息。不是因为你想通了，是因为手指抬不起来。\n\n凌晨 00:07，屏幕亮了一下。键盘自己敲完了周报，语气比你平时更积极。\n\n第二天，工位被擦得很干净。新的工牌放在键盘旁，编号没有变。\n\n午休时，有人说这个位置昨晚没人坐过。只有咖啡杯底的红印还在。"
+      },
+      admin: {
+        badge: "结局 05 · 管理员",
+        title: "凌晨消息从你这里发出",
+        text: "你打开历史记录，却没有离开。你看懂了谁该被留下，谁该被送进无窗会议室，谁适合在 00:07 收到新事项。\n\n更高权限弹了出来。那一刻，所有灰掉的头像同时亮了一下。\n\n从那以后，再也没有人半夜给你发消息。\n\n因为消息都是你发的。"
+      },
+      swallowed: {
+        badge: "结局 06 · 已适应",
+        title: "你不再需要被提醒",
+        text: "你不再觉得哪里不对。屏幕上的字偶尔会碎掉，但你已经学会不去读。\n\n会议、消息、周报、排期，它们自己会把你带到该去的地方。\n\n咖啡变红的时候，你也会喝完。\n\n后来有人问你今天星期几。你想了很久，回答：在线。"
+      },
+      ordinary: {
+        badge: "结局 07 · 明天继续",
+        title: "普通人最难消失",
+        text: "你关掉电脑，又在几分钟后重新打开。\n\n有时你觉得不对，有时又觉得大家都这样。星期几不重要，时间也不重要。\n\n你没有被裁，也没有升上去。你只是留了下来。\n\n安全通道就在右手边。你每天都会路过它。你从来没有走进去。"
+      },
+      loop: {
+        badge: "结局 08 · 重新入职",
+        title: "Offer 来自你的账号",
+        text: "你等它自动关机。屏幕黑下去之前，映出你身后空着的工位。\n\n键盘轻轻动了一下。招聘软件弹出一条新消息：今晚可以入职，薪资从优，包三餐，事项稳定。\n\n发送人是你自己。\n\n消息下面还有一行小字：已读。"
+      }
+    };
+
+    const achievementCatalog = [
+      { id: "signed", code: "A-001", title: "自愿签订", desc: "签下劳动合同，领取工牌。", hint: "墨水干得比血慢，系统却已经判定你同意。" },
+      { id: "firstStep", code: "A-002", title: "收到学徒", desc: "完成第一次选择，正式进入事项。", hint: "第一声收到不是回复，是闸门落下的声音。" },
+      { id: "thirdTurn", code: "A-003", title: "试用期错觉", desc: "撑过前三个阶段。", hint: "试用期试的不是你能不能留下，是你还剩多少自己。" },
+      { id: "sixthTurn", code: "A-004", title: "周三还没结束", desc: "进入第六个阶段后，日期开始松动。", hint: "日历不翻页的时候，人在替它翻面。" },
+      { id: "finalScene", code: "A-005", title: "在线确认", desc: "抵达最后一次系统询问。", hint: "问题只有一个，答案却早已被排进班表。" },
+      { id: "evidence1", code: "B-001", title: "截图命名为个人原因", desc: "留下第一份异常证据。", hint: "证据被保存前，先学会了替公司说话。" },
+      { id: "evidence3", code: "B-002", title: "封存材料", desc: "累计三份异常证据。", hint: "三份材料足以归档，也足以让归档人消失。" },
+      { id: "evidence5", code: "B-003", title: "你不是幻觉", desc: "累计五份异常证据。", hint: "当证据太多，系统会开始怀疑证人。" },
+      { id: "aware50", code: "B-004", title: "开始不像新人", desc: "异常认知达到 50。", hint: "新人会问为什么，旧人只问删哪一段。" },
+      { id: "aware80", code: "B-005", title: "后台访客", desc: "异常认知达到 80。", hint: "权限没有打开门，只是把门后的你照亮。" },
+      { id: "bossLow", code: "C-001", title: "低绩效提醒", desc: "触发无窗小会议室的绩效沟通。", hint: "没有窗的会议室最适合谈未来，因为没人能指向外面。" },
+      { id: "hpLow", code: "C-002", title: "工位晕倒", desc: "身体状态低到被系统健康提醒盯上。", hint: "身体先下线，账号仍保持良好在线率。" },
+      { id: "sanLow", code: "C-003", title: "文字开始重影", desc: "精神状态低到屏幕替你排好窗口。", hint: "当文字重叠，真正的意思会从缝里爬出来。" },
+      { id: "relLow", code: "C-004", title: "群聊沉默", desc: "同事关系低到所有消息只剩已读。", hint: "已读不是看见你，是确认你还能承担。" },
+      { id: "favoriteHigh", code: "C-005", title: "自己人候选", desc: "绩效和关系都好到有人递来第二杯咖啡。", hint: "被选择的人，总要先喝下选择的颜色。" },
+      { id: "archiveHigh", code: "C-006", title: "封存记录", desc: "进入不该被新人看到的内网后台。", hint: "档案不是为了记住谁，是为了证明谁从未存在。" },
+      { id: "duplicate", code: "D-001", title: "另一个你", desc: "点开同名同工号的离职员工。", hint: "他不是替代品，他只是比你早一步提交了你。" },
+      { id: "bloodCoffee", code: "D-002", title: "第二杯冰美式", desc: "喝下那杯颜色不太对的咖啡。", hint: "咖啡因会醒脑，另一种东西会醒来。" },
+      { id: "core", code: "D-003", title: "核心群人数不变", desc: "接受核心群安排。", hint: "群人数不变，只是有人开始被算作权限。" },
+      { id: "kpi90", code: "E-001", title: "高价值同学", desc: "绩效达到 90。", hint: "价值越高，标签越牢，离出口越远。" },
+      { id: "hp20", code: "E-002", title: "连续在线", desc: "身体状态跌到 20 或以下。", hint: "系统只记录在线，不记录谁在替你呼吸。" },
+      { id: "san20", code: "E-003", title: "收到收到收到", desc: "精神状态跌到 20 或以下。", hint: "重复到第三遍时，它就不再需要你的声音。" },
+      { id: "rel20", code: "E-004", title: "已读 17", desc: "同事关系跌到 20 或以下。", hint: "十七个已读排成一堵墙，墙后每个人都很忙。" },
+      { id: "balanced", code: "E-005", title: "还能装正常", desc: "第五阶段后四项状态都不低于 50。", hint: "最危险的稳定，是连自己都看不出裂缝。" },
+      { id: "truth", code: "Z-001", title: "真相离职", desc: "达成结局：工牌裂开时，门外没有星期一。", hint: "逃出去的人会带走门，留下的人继续寻找门牌。" },
+      { id: "insider", code: "Z-002", title: "亲信晋升", desc: "达成结局：你成了会说话的那盏灯。", hint: "灯不会离开走廊，它只负责照亮后来的人。" },
+      { id: "layoff", code: "Z-003", title: "温和沟通", desc: "达成结局：被裁员。", hint: "温和是刀背，真正的刃藏在会议纪要里。" },
+      { id: "overwork", code: "Z-004", title: "键盘替身", desc: "达成结局：过劳。", hint: "手停下来以后，键盘终于学会了你的语气。" },
+      { id: "admin", code: "Z-005", title: "凌晨管理员", desc: "达成结局：管理员。", hint: "你不再收到深夜消息，因为深夜开始使用你的名字。" },
+      { id: "swallowed", code: "Z-006", title: "已适应", desc: "达成结局：不再需要被提醒。", hint: "适应不是活下来，是忘记自己曾经想活着。" },
+      { id: "ordinary", code: "Z-007", title: "明天继续", desc: "达成结局：普通人最难消失。", hint: "普通不是安全，只是系统还没决定怎么称呼你。" },
+      { id: "loop", code: "Z-008", title: "重新入职", desc: "达成结局：Offer 来自你的账号。", hint: "循环不需要起点，只需要一个愿意点开 offer 的人。" }
+    ];
+
+    const specialAchievementMap = {
+      bossLow: "bossLow",
+      hpLow: "hpLow",
+      sanLow: "sanLow",
+      relLow: "relLow",
+      favoriteHigh: "favoriteHigh",
+      archiveHigh: "archiveHigh"
+    };
+
+    const els = {
+      startView: document.getElementById("startView"),
+      gameView: document.getElementById("gameView"),
+      endingView: document.getElementById("endingView"),
+      manualModal: document.getElementById("manualModal"),
+      contractModal: document.getElementById("contractModal"),
+      achievementModal: document.getElementById("achievementModal"),
+      achievementGrid: document.getElementById("achievementGrid"),
+      achievementSummary: document.getElementById("achievementSummary"),
+      shareModal: document.getElementById("shareModal"),
+      shareCard: document.getElementById("shareCard"),
+      leftDay: document.getElementById("leftDay"),
+      heatText: document.getElementById("heatText"),
+      feed: document.getElementById("feed"),
+      achievements: document.getElementById("achievements"),
+      achCount: document.getElementById("achCount"),
+      sceneIcon: document.getElementById("sceneIcon"),
+      sceneTitle: document.getElementById("sceneTitle"),
+      sceneSub: document.getElementById("sceneSub"),
+      clockText: document.getElementById("clockText"),
+      notice: document.getElementById("notice"),
+      story: document.getElementById("story"),
+      choices: document.getElementById("choices"),
+      logline: document.getElementById("logline"),
+      kpiText: document.getElementById("kpiText"),
+      hpText: document.getElementById("hpText"),
+      sanText: document.getElementById("sanText"),
+      relText: document.getElementById("relText"),
+      kpiMetric: document.getElementById("kpiMetric"),
+      hpMetric: document.getElementById("hpMetric"),
+      sanMetric: document.getElementById("sanMetric"),
+      relMetric: document.getElementById("relMetric"),
+      kpiBar: document.querySelector("#kpiBar i"),
+      hpBar: document.querySelector("#hpBar i"),
+      sanBar: document.querySelector("#sanBar i"),
+      relBar: document.querySelector("#relBar i"),
+      kpiBarWrap: document.getElementById("kpiBar"),
+      hpBarWrap: document.getElementById("hpBar"),
+      sanBarWrap: document.getElementById("sanBar"),
+      relBarWrap: document.getElementById("relBar"),
+      bodyStatus: document.getElementById("bodyStatus"),
+      workStatus: document.getElementById("workStatus"),
+      mindStatus: document.getElementById("mindStatus"),
+      innerVoice: document.getElementById("innerVoice"),
+      endingBadge: document.getElementById("endingBadge"),
+      endingTitle: document.getElementById("endingTitle"),
+      endingText: document.getElementById("endingText"),
+      finalLog: document.getElementById("finalLog")
+    };
+    els.toast = document.getElementById("toast");
+
+    function choice(text, icon, effect, log, extra = {}) {
+      return { text, icon, effect, log, ...extra };
+    }
+
+    function terminal(text, ending) {
+      return { text, icon: "→", ending };
+    }
+
+    function clamp(v) {
+      return Math.max(0, Math.min(100, v));
+    }
+
+    function corruptText(text) {
+      if (state.san >= 35) return text;
+      const noise = ["收", "到", "█", "□", "0", "7", "工", "时", "同", "步", "…"];
+      const rate = state.san < 18 ? .26 : .13;
+      return Array.from(text).map((char, index) => {
+        if (char === "\n" || char === " " || /[，。：“”？；、]/.test(char)) return char;
+        const seed = (index * 17 + state.turn * 29 + state.san) % 100;
+        return seed < rate * 100 ? noise[(index + state.turn) % noise.length] : char;
+      }).join("");
+    }
+
+    function applyEffect(effect = {}) {
+      state.kpi = clamp(state.kpi + (effect.kpi || 0));
+      state.hp = clamp(state.hp + (effect.hp || 0));
+      state.san = clamp(state.san + (effect.san || 0));
+      state.rel = clamp(state.rel + (effect.rel || 0));
+      state.aware = clamp(state.aware + (effect.aware || 0));
+    }
+
+    function nextScene() {
+      for (const item of specialScenes) {
+        if (item.condition()) return { ...item.scene, specialId: item.id, setFlag: item.setFlag };
+      }
+      return baseScenes[Math.min(state.turn, baseScenes.length - 1)];
+    }
+
+    function updateStats() {
+      els.kpiText.textContent = state.kpi;
+      els.hpText.textContent = state.hp;
+      els.sanText.textContent = state.san;
+      els.relText.textContent = state.rel;
+      els.kpiBar.style.width = `${state.kpi}%`;
+      els.hpBar.style.width = `${state.hp}%`;
+      els.sanBar.style.width = `${state.san}%`;
+      els.relBar.style.width = `${state.rel}%`;
+      els.kpiBarWrap.classList.toggle("low", state.kpi < 30);
+      els.hpBarWrap.classList.toggle("low", state.hp < 35);
+      els.sanBarWrap.classList.toggle("low", state.san < 35);
+      els.relBarWrap.classList.toggle("low", state.rel < 25);
+      els.kpiMetric.classList.toggle("warn", state.kpi < 30);
+      els.hpMetric.classList.toggle("warn", state.hp < 35);
+      els.sanMetric.classList.toggle("warn", state.san < 35);
+      els.relMetric.classList.toggle("warn", state.rel < 25);
+      document.body.classList.toggle("san-low", state.san < 35);
+      document.body.classList.toggle("san-critical", state.san < 18);
+      document.body.classList.toggle("hp-low", state.hp < 35);
+      document.body.classList.toggle("hp-critical", state.hp < 18);
+      document.body.classList.toggle("kpi-low", state.kpi < 30);
+      document.body.classList.toggle("kpi-critical", state.kpi < 18);
+      document.body.classList.toggle("rel-low", state.rel < 25);
+      document.body.classList.toggle("shake", state.san < 30);
+      document.body.classList.toggle("week3", state.turn >= 6);
+      document.body.classList.toggle("deep-loop", state.turn >= 8 || state.hp < 24);
+    }
+
+    function impactMarkup(choiceData) {
+      if (choiceData.ending) return `<div class="impact"><span>终局</span></div>`;
+      const labels = [["kpi", "绩效"], ["hp", "身体"], ["san", "精神"], ["rel", "关系"], ["aware", "???"]];
+      const tags = labels
+        .filter(([key]) => choiceData.effect && choiceData.effect[key])
+        .map(([key, label]) => {
+          const up = choiceData.effect[key] > 0;
+          const cls = key === "aware" ? "hidden" : up ? "up" : "down";
+          return `<span class="${cls}">${label} ${up ? "↑" : "↓"}</span>`;
+        });
+      return tags.length ? `<div class="impact">${tags.join("")}</div>` : "";
+    }
+
+    function updateFeed() {
+      const group = feeds[Math.min(feeds.length - 1, Math.floor(state.turn / 2))];
+      const extra = [];
+      if (state.kpi < 30) extra.push(["人事日程", "你的名字出现在无窗会议室的预约标题里。"]);
+      if (state.hp < 35) extra.push(["健康提示", "你的工位预约了 AED，时间是明天凌晨。"]);
+      if (state.san < 30) extra.push(["屏幕残影", "内网标题逐渐重叠成同一句：收到。收到。收到。"]);
+      if (state.rel < 25) extra.push(["群聊状态", "你发出的每条消息都显示已读，没人再显示正在输入。"]);
+      els.feed.innerHTML = group.concat(extra).map(([label, text]) => `<div class="feed-item"><b>${label}</b>${corruptText(text)}</div>`).join("");
+      els.heatText.textContent = `热度 ${12 + state.turn * 11 + Math.max(0, state.aware - 30)}`;
+      els.leftDay.textContent = `阶段 ${Math.min(state.turn + 1, baseScenes.length)}`;
+    }
+
+    function updateAchievements() {
+      const unlocked = achievementCatalog.filter((item) => state.achievements.includes(item.id));
+      els.achCount.textContent = `${unlocked.length}/${achievementCatalog.length}`;
+      const names = unlocked.slice(-4).map((item) => item.title).join(" / ");
+      els.achievements.innerHTML = `<div>${names || "暂无。你还没被系统特别记住。"}</div><button class="btn" id="achievementBtnPanel" type="button">查看全部成就</button>`;
+      document.getElementById("achievementBtnPanel").addEventListener("click", showAchievements);
+      if (els.achievementModal.classList.contains("show")) renderAchievementModal();
+    }
+
+    function updateStatus() {
+      const body = state.hp > 62
+        ? "胃里空着，手心有汗，但还能把字看清。你告诉自己只是太久没上班。"
+        : state.hp > 32
+          ? "太阳穴一跳一跳。咖啡像冷水一样滑下去，回味却有铁锈味。"
+          : "胸口发紧，指尖发麻。屏幕顶端垂下一道暗红水线，你分不清是咖啡还是血。";
+      const work = state.kpi > 78
+        ? "你开始频繁出现在会议纪要里。很多锅还没有名字，但已经有了你的工号。"
+        : state.kpi < 30
+          ? "你的头像旁边多了一个灰色小点。人事窗口打开你的次数越来越多。"
+          : "事项稳定增加，权限稳定不足。每个人都说你先熟悉一下。";
+      const mind = state.san > 62
+        ? "你还知道哪些声音来自办公室，哪些声音来自自己脑子里。"
+        : state.san > 32
+          ? "屏幕边缘有冷白光晕，文字偶尔像被污水泡过。"
+          : "你能听见自己的心跳，也能听见电脑风扇里有人敲键盘。";
+      const social = state.rel > 70
+        ? "有人愿意提前提醒你，哪些会不要说话，哪些话一定要抢着说。"
+        : state.rel < 25
+          ? "群聊还在滚动，但没人再接你的话。你的消息像被放进草稿箱。"
+          : "同事们对你还算客气，客气到像随时准备忘记你的名字。";
+      const voice = state.aware > 70
+        ? "如果我把这些都留下来，是不是就能证明我不是自己疯了？"
+        : state.san < 30
+          ? "收到。收到。收到。刚才是谁在替我回复？"
+          : state.kpi > 82
+            ? "他们好像真的开始需要我了。可为什么我一点也不高兴？"
+            : "先熬过这周吧。只要熬过这周。";
+      els.bodyStatus.textContent = corruptText(body);
+      els.workStatus.textContent = corruptText(work);
+      els.mindStatus.textContent = corruptText(`${mind}\n${social}`);
+      els.innerVoice.textContent = corruptText(voice);
+    }
+
+    function noticeText(scene) {
+      if (state.san < 22) return "【系统】收█到□收0到……状态同步中。";
+      if (state.aware >= 78) return "【系统】你正在访问不该留下的记录。";
+      if (state.aware >= 56) return "【系统】部分日期无法同步。";
+      if (state.rel < 20) return "【组织提醒】请关注团队协作氛围。";
+      return scene.notice;
+    }
+
+    function render() {
+      const scene = nextScene();
+      updateStats();
+      updateFeed();
+      updateAchievements();
+      updateStatus();
+      els.sceneIcon.textContent = scene.icon || "⌁";
+      els.sceneTitle.textContent = corruptText(scene.title);
+      els.sceneSub.textContent = corruptText(scene.sub);
+      els.clockText.textContent = corruptText(scene.time);
+      els.notice.textContent = corruptText(noticeText(scene));
+      els.story.textContent = corruptText(scene.text);
+      els.logline.textContent = corruptText(state.history[state.history.length - 1] || "你还没来得及后悔。");
+      els.choices.innerHTML = "";
+      scene.choices.forEach((item) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "choice";
+        btn.innerHTML = `<div class="choice-title"><span class="choice-icon">${item.icon || "→"}</span><span>${corruptText(item.text)}</span></div>${impactMarkup(item)}`;
+        btn.addEventListener("click", () => selectChoice(item, scene));
+        els.choices.appendChild(btn);
+      });
+    }
+
+    function selectChoice(item, scene) {
+      if (item.ending) {
+        showEnding(resolveEnding(item.ending));
+        return;
+      }
+      applyEffect(item.effect);
+      if (item.flag) state.flags[item.flag] = true;
+      if (scene.setFlag) state.flags[scene.setFlag] = true;
+      if (item.evidence) state.evidence += item.evidence;
+      state.history.push(item.log);
+      if (!scene.specialId) state.turn += 1;
+      checkAchievements({ choice: item, scene });
+
+      if (state.san <= 0) return showEnding("swallowed");
+      if (state.hp <= 0) return showEnding("overwork");
+      if (state.kpi < 18 && state.hp < 25) return showEnding("overwork");
+      if (state.aware >= 100 && state.rel < 18) return showEnding("admin");
+      render();
+    }
+
+    function addAchievement(id, silent = false) {
+      const item = achievementCatalog.find((entry) => entry.id === id);
+      if (!item || state.achievements.includes(id)) return;
+      state.achievements.push(id);
+      if (!silent) showToast(`解锁成就：${item.title}`);
+    }
+
+    function checkAchievements(context = {}) {
+      if (context.scene && context.scene.specialId) addAchievement(specialAchievementMap[context.scene.specialId]);
+      if (context.choice) addAchievement("firstStep");
+      if (state.turn >= 3) addAchievement("thirdTurn");
+      if (state.turn >= 6) addAchievement("sixthTurn");
+      if (state.turn >= baseScenes.length - 1) addAchievement("finalScene");
+      if (state.evidence >= 1) addAchievement("evidence1");
+      if (state.evidence >= 3) addAchievement("evidence3");
+      if (state.evidence >= 5) addAchievement("evidence5");
+      if (state.aware >= 50) addAchievement("aware50");
+      if (state.aware >= 80) addAchievement("aware80");
+      if (state.kpi >= 90) addAchievement("kpi90");
+      if (state.hp <= 20) addAchievement("hp20");
+      if (state.san <= 20) addAchievement("san20");
+      if (state.rel <= 20) addAchievement("rel20");
+      if (state.turn >= 5 && state.kpi >= 50 && state.hp >= 50 && state.san >= 50 && state.rel >= 50) addAchievement("balanced");
+      if (state.flags.duplicate) addAchievement("duplicate");
+      if (state.flags.bloodCoffee) addAchievement("bloodCoffee");
+      if (state.flags.core) addAchievement("core");
+    }
+
+    function renderAchievementModal() {
+      const unlockedCount = state.achievements.length;
+      els.achievementSummary.textContent = `本周目已解锁 ${unlockedCount} / ${achievementCatalog.length} 项。未解锁档案将保持封存。`;
+      els.achievementGrid.innerHTML = achievementCatalog.map((item) => {
+        const unlocked = state.achievements.includes(item.id);
+        return `<div class="achievement-card ${unlocked ? "" : "locked"}"><small>${item.code}</small><b>${unlocked ? item.title : "？？？"}</b><p>${unlocked ? item.desc : "？？？"}</p><em>${unlocked ? item.hint : "？？？"}</em></div>`;
+      }).join("");
+    }
+
+    function shareUrl() {
+      if (PUBLIC_GAME_URL) return PUBLIC_GAME_URL;
+      const url = new URL(window.location.href);
+      url.hash = "";
+      return url.toString();
+    }
+
+    function qrUrl(url) {
+      return `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=12&data=${encodeURIComponent(url)}`;
+    }
+
+    function renderShareCard() {
+      const ending = state.currentEnding ? endings[state.currentEnding] : { badge: "结局未同步", title: "仍在在线确认中" };
+      const url = shareUrl();
+      els.shareCard.innerHTML = `
+        <div class="badge">${ending.badge}</div>
+        <h3>${ending.title}</h3>
+        <p>我在《误入007：牛马循环怪谈》中完成了一次入职循环。系统留下了这张结局卡，但没有确认我是否下班。</p>
+        <div class="share-image" aria-hidden="true"></div>
+        <div class="share-grid">
+          <div class="share-stats">
+            <div class="share-stat"><b>绩效 KPI</b><span>${state.kpi}</span></div>
+            <div class="share-stat"><b>身体状态</b><span>${state.hp}</span></div>
+            <div class="share-stat"><b>精神状态</b><span>${state.san}</span></div>
+            <div class="share-stat"><b>同事关系</b><span>${state.rel}</span></div>
+            <div class="share-stat"><b>异常认知</b><span>${state.aware}</span></div>
+            <div class="share-stat"><b>成就档案</b><span>${state.achievements.length}/${achievementCatalog.length}</span></div>
+          </div>
+          <div class="share-qr">
+            <img src="${qrUrl(url)}" alt="扫码体验游戏">
+            <span class="tiny">扫码体验</span>
+          </div>
+        </div>
+        <div class="share-link">${url}</div>
+      `;
+    }
+
+    function resolveEnding(kind) {
+      if (kind === "archive") {
+        if (state.aware >= 76 && state.evidence >= 3 && state.san >= 35 && state.hp >= 30) return "truth";
+        if (state.aware >= 88 && state.kpi >= 70) return "admin";
+        if (state.san < 30) return "swallowed";
+        if (state.hp < 25) return "overwork";
+        return "loop";
+      }
+      if (kind === "online") {
+        if (state.kpi >= 82 && state.rel >= 62 && state.flags.core) return "insider";
+        if (state.kpi < 30 || state.rel < 22) return "layoff";
+        if (state.hp < 30) return "overwork";
+        if (state.san < 28) return "swallowed";
+        return "ordinary";
+      }
+      if (kind === "shutdown") {
+        if (state.aware >= 70 && state.evidence >= 2 && state.san >= 38 && state.hp >= 30) return "truth";
+        if (state.kpi < 32 || state.rel < 22) return "layoff";
+        if (state.hp < 28) return "overwork";
+        if (state.san < 30) return "swallowed";
+        return "ordinary";
+      }
+      return "ordinary";
+    }
+
+    function showEnding(key) {
+      const ending = endings[key];
+      state.currentEnding = key;
+      addAchievement(key);
+      els.startView.style.display = "none";
+      els.gameView.classList.remove("show");
+      els.endingView.classList.add("show");
+      els.endingBadge.textContent = ending.badge;
+      els.endingTitle.textContent = ending.title;
+      els.endingText.innerHTML = "";
+      ending.text.split("\n\n").forEach((paragraph) => {
+        const p = document.createElement("p");
+        p.textContent = paragraph;
+        els.endingText.appendChild(p);
+      });
+      els.finalLog.textContent = "";
+      updateStats();
+      updateAchievements();
+    }
+
+    function startGame() {
+      state = initialState();
+      state.flags.signed = true;
+      addAchievement("signed", true);
+      els.startView.style.display = "none";
+      els.endingView.classList.remove("show");
+      els.gameView.classList.add("show");
+      hideContract();
+      render();
+    }
+
+    function resetToCover() {
+      state = initialState();
+      document.body.className = "";
+      hideContract();
+      hideManual();
+      els.gameView.classList.remove("show");
+      els.endingView.classList.remove("show");
+      els.startView.style.display = "";
+    }
+
+    function showContract() { els.contractModal.classList.add("show"); }
+    function hideContract() { els.contractModal.classList.remove("show"); }
+    function showManual() { els.manualModal.classList.add("show"); }
+    function hideManual() { els.manualModal.classList.remove("show"); }
+    function showAchievements() { renderAchievementModal(); els.achievementModal.classList.add("show"); }
+    function hideAchievements() { els.achievementModal.classList.remove("show"); }
+    function showShareCard() { renderShareCard(); els.shareModal.classList.add("show"); }
+    function hideShareCard() { els.shareModal.classList.remove("show"); }
+    function showToast(message) {
+      els.toast.textContent = message;
+      els.toast.classList.add("show");
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => els.toast.classList.remove("show"), 1600);
+    }
+
+    document.getElementById("startBtn").addEventListener("click", showContract);
+    document.getElementById("contractBtn").addEventListener("click", showContract);
+    document.getElementById("signContractBtn").addEventListener("click", startGame);
+    document.getElementById("closeContractBtn").addEventListener("click", () => showToast("你无法拒绝"));
+    document.getElementById("manualBtn").addEventListener("click", showManual);
+    document.getElementById("manualBtn2").addEventListener("click", showManual);
+    document.getElementById("closeManualBtn").addEventListener("click", hideManual);
+    document.getElementById("achievementBtnTop").addEventListener("click", showAchievements);
+    document.getElementById("achievementBtnStart").addEventListener("click", showAchievements);
+    document.getElementById("achievementBtnEnd").addEventListener("click", showAchievements);
+    document.getElementById("closeAchievementBtn").addEventListener("click", hideAchievements);
+    document.getElementById("shareEndingBtn").addEventListener("click", showShareCard);
+    document.getElementById("closeShareBtn").addEventListener("click", hideShareCard);
+    document.getElementById("restartBtn").addEventListener("click", resetToCover);
+    document.getElementById("restartTopBtn").addEventListener("click", resetToCover);
+    document.getElementById("logBtn").addEventListener("click", () => {
+      els.finalLog.textContent = state.history.length ? corruptText(state.history.join(" / ")) : "没有留下能读懂的记录。";
+    });
+    els.contractModal.addEventListener("click", (event) => { if (event.target === els.contractModal) showToast("你无法拒绝"); });
+    els.manualModal.addEventListener("click", (event) => { if (event.target === els.manualModal) hideManual(); });
+    els.achievementModal.addEventListener("click", (event) => { if (event.target === els.achievementModal) hideAchievements(); });
+    els.shareModal.addEventListener("click", (event) => { if (event.target === els.shareModal) hideShareCard(); });
+  </script>
+</body>
+</html>
